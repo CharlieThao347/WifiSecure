@@ -4,15 +4,20 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,8 +36,12 @@ import com.example.wifisecure.ui.theme.WifiSecureTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.PowerSettingsNew
+import androidx.compose.material3.Button
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.Alignment
 
 /*
   Entry point for when the app starts.
@@ -82,6 +91,7 @@ fun MainScreen() {
         ){
             FoundAndFilter()
             WifiList()
+            VPNButton()
         }
     }
 }
@@ -94,17 +104,17 @@ fun FoundAndFilter() {
         horizontalArrangement = Arrangement.SpaceBetween){
         // Hardcoded to 6. Will replace later.
         Text(text = "Found(6)",
+            modifier = Modifier.padding(vertical = 13.dp, horizontal = 8.dp),
             fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(vertical = 13.dp, horizontal = 8.dp))
+            fontWeight = FontWeight.Bold)
         // Will implement button logic later.
         IconButton(
             onClick = {}
         ) {
             Icon(
+                modifier = Modifier.size(30.dp),
                 imageVector = Icons.Default.FilterList,
-                contentDescription = "Filter icon",
-                modifier = Modifier.size(30.dp)
+                contentDescription = "Filter icon"
             )
         }
     }
@@ -113,24 +123,53 @@ fun FoundAndFilter() {
 // Composable that renders the list of WiFi cards.
 @Composable
 fun WifiList() {
-            LazyColumn(modifier = Modifier.padding(top = 1.dp).height(620.dp),
+            LazyColumn(modifier = Modifier.padding(top = 1.dp).height(600.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp),) {
                 // Hardcoded to 10. Will replace later.
                 items(10) {
                     ElevatedCard(elevation = CardDefaults.cardElevation(
-                        defaultElevation = 10.dp),
-                        modifier = Modifier.fillMaxWidth().height(120.dp).
+                        defaultElevation = 5.dp),
+                        modifier = Modifier.fillMaxWidth().height(100.dp).
                                     padding(horizontal = 20.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = Color(0xFFE0E0E0)
                         )) {
                         Text(text = "Wifi Name",
+                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp))
+                            fontWeight = FontWeight.Bold)
                     }
                 }
             }
+}
+
+// Composable that renders the VPN toggle button.
+@Composable
+fun VPNButton() {
+    Column(
+        modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Button(
+            onClick = {},
+            shape = CircleShape,
+            modifier = Modifier.size(90.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF27619b),
+                contentColor = Color.White
+            ),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.PowerSettingsNew,
+                contentDescription = "Power Button Icon",
+                modifier = Modifier.size(90.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(3.dp))
+        Text(text = "Connect to VPN",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold)
+    }
 }
 
 // Renders the app in Preview Mode.
