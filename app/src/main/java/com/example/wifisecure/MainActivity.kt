@@ -2,6 +2,7 @@
 
 package com.example.wifisecure
 
+import android.Manifest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -33,6 +34,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import android.content.pm.PackageManager
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
@@ -46,7 +49,9 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.example.wifisecure.screensizesupport.*
+import com.example.wifisecure.requiredprivileges.*
 import com.example.wifisecure.ui.theme.WifiSecureTheme
 
 
@@ -55,17 +60,51 @@ import com.example.wifisecure.ui.theme.WifiSecureTheme
   Calls the composable that renders the main page.
  */
 class MainActivity : ComponentActivity() {
+
+    // Handles user response of permission request.
+    val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                // Permission is granted. Continue.
+                val placeholder = 1
+            } else {
+                // Explain that feature won't work because
+                // permission denied.
+                val placeholder = 2
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             WifiSecureTheme {
+
+                // Used for UI screen adaptiveness.
                 val windowSizeClass = calculateWindowSizeClass(this)
+                // Renders the UI.
                 MainScreen(windowSizeClass)
+
+                // Requests permission for user's location.
+                when {
+                    ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED -> {
+                        requestPermissionLauncher.launch(
+                            Manifest.permission.ACCESS_FINE_LOCATION)
+                    }
                 }
+
+                // Check if "Location" is enabled in android settings.
+                if(!isLocationEnabled(this))
+                    LocationServicesDialog(this)
             }
         }
     }
+}
 
 /*
   Composable that renders the main page.
