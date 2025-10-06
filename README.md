@@ -6,6 +6,7 @@ The app is built using Kotlin and a UI framework called Jetpack Compose.
 
 ### How to run
 1. Install Android Studio (latest stable version).
+[https://developer.android.com/studio](https://developer.android.com/studio)
 2. Clone the repo.
 3. Open the project in Android Studio.
 4. While inside Android Studio, set up an emulator or connect a real Android device (will need to connect a real Android device for the Wi-Fi scanning functionality to work).
