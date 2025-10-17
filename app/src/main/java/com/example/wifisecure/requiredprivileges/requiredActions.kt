@@ -20,19 +20,3 @@ fun directToLocationServices(context: Context){
     val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
     context.startActivity(intent)
 }
-
-// Composable that asks for user to enable location services if it is not enabled.
-@Composable
-fun LocationServicesDialog(context: Context){
-    val builder: AlertDialog.Builder = AlertDialog.Builder(context)
-    builder
-        .setMessage("This app requires 'Location' to be enabled for Wi-Fi scanning.")
-        .setTitle("Use Location?")
-        .setPositiveButton("Yes") { dialog, which ->
-            directToLocationServices(context)
-        }
-        .setNegativeButton("No") { dialog, which ->
-        }
-    val dialog: AlertDialog = builder.create()
-    dialog.show()
-}

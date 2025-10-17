@@ -17,6 +17,7 @@ data class Sizing(
     val filterIcon: Dp,
     val cardHeight: Dp,
     val ssidText: TextUnit,
+    val subfieldText: TextUnit,
     val vpnButtonPadding: Dp,
     val vpnButton: Dp,
     val powerIcon: Dp,
@@ -34,6 +35,7 @@ fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
             filterIcon = 30.dp,
             cardHeight = 120.dp,
             ssidText = 20.sp,
+            subfieldText = 15.sp,
             vpnButtonPadding = 10.dp,
             vpnButton = 90.dp,
             powerIcon = 90.dp,
@@ -46,6 +48,7 @@ fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
             filterIcon = 40.dp,
             cardHeight = 150.dp,
             ssidText = 25.sp,
+            subfieldText = 20.sp,
             vpnButtonPadding = 40.dp,
             vpnButton = 90.dp,
             powerIcon = 90.dp,
@@ -58,13 +61,14 @@ fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
             filterIcon = 50.dp,
             cardHeight = 175.dp,
             ssidText = 30.sp,
+            subfieldText = 25.sp,
             vpnButtonPadding = 10.dp,
             vpnButton = 75.dp,
             powerIcon = 75.dp,
             vpnText = 18.sp
         )
         // placeholder
-        else -> Sizing(appBarWidth = .125f,35.sp,20.sp,50.dp,175.dp,30.sp, vpnButtonPadding = 10.dp, 75.dp,
+        else -> Sizing(appBarWidth = .125f,35.sp,20.sp,50.dp,175.dp,30.sp, subfieldText = 25.sp, vpnButtonPadding = 10.dp, 75.dp,
                         powerIcon = 75.dp, vpnText = 18.sp)
     }
 }
