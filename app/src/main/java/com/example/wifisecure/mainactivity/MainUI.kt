@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -43,6 +44,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +57,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /*
 Composable that renders the main page.
@@ -124,37 +128,95 @@ fun TopAppBar(
         },
         // Renders the "Scan" button that appears in the right of the app bar.
         actions = {
-            Box(
-                modifier = Modifier.fillMaxHeight(),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(
-                    onClick = onScan,
-                    enabled = !isScanning,
-                    modifier = Modifier
-                        .padding(end = sizing.scanButtonPaddingEnd)
-                        .size(sizing.scanButtonWidth, sizing.scanButtonHeight),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF00A300),
-                        contentColor = Color.White
-                    )
+                Row (
+                    modifier = Modifier.fillMaxHeight().width(sizing.actionsBox),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    Text(
-                        if (isScanning) {
-                            "Scanning…"
-                        } else {
-                            "Scan"
-                        },
-                        fontSize = sizing.scanButtonText
-                    )
+                    ScanButtons(sizing, onScan, isScanning)
                 }
-            }
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color(0xFF27619b),
             titleContentColor = Color.White
         )
     )
+}
+
+// Composable that renders the two scan buttons.
+@Composable
+fun ScanButtons(
+    sizing: Sizing,
+    onScan: () -> Unit,
+    isScanning: Boolean)
+{
+    // State for showing/hiding the manual scan button.
+    var showManualScanButton by remember { mutableStateOf(true) }
+    // Used for launching the coroutine that performs the Wi-Fi scan every 5 seconds.
+    val scope = rememberCoroutineScope()
+
+    // Displays the automatic scan button.
+    Button(
+        enabled = !isScanning,
+        onClick = {
+            // Hides the manual scan button and toggles on automatic Wi-Fi scanning.
+            if (showManualScanButton) {
+                showManualScanButton = false
+                scope.launch{
+                    while (!showManualScanButton && !isScanning) {
+                        // Invokes the Wi-Fi scanning function.
+                        onScan()
+                        // 5 second delay.
+                        delay(5000L)
+                    }
+                }
+            }
+            // Unhides the manual scan button and toggles off automatic Wi-Fi scanning.
+            else {
+                showManualScanButton = true
+            }
+        },
+        modifier = Modifier
+            .padding(end = sizing.scanButtonPaddingEnd)
+            .size(sizing.scanButtonWidth, sizing.scanButtonHeight),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF6082B6),
+            contentColor = Color.White
+        )
+    ) {
+        Text(
+            if (isScanning && !showManualScanButton) {
+                "Scan…"
+            } else {
+                "Auto"
+            },
+            fontSize = sizing.scanButtonText
+        )
+    }
+
+    if (showManualScanButton) {
+        // Displays the manual scan button.
+        Button(
+            onClick = onScan,
+            enabled = !isScanning,
+            modifier = Modifier
+                .padding(end = sizing.scanButtonPaddingEnd)
+                .size(sizing.scanButtonWidth, sizing.scanButtonHeight),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF00A300),
+                contentColor = Color.White
+            )
+        ) {
+            Text(
+                if (isScanning) {
+                    "Scan…"
+                } else {
+                    "Scan"
+                },
+                fontSize = sizing.scanButtonText
+            )
+        }
+    }
 }
 
 // Composable that renders "Found" text.

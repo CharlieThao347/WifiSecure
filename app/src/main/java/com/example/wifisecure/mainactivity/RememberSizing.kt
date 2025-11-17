@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 data class Sizing(
     val appBarWidth: Float,
     val appBarText: TextUnit,
+    val actionsBox: Dp,
 
     val scanButtonPaddingEnd: Dp,
     val scanButtonWidth: Dp,
@@ -64,6 +65,7 @@ fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
         WindowWidthSizeClass.Compact -> Sizing(
             appBarWidth = .1f,
             appBarText = 25.sp,
+            actionsBox = 300.dp,
 
             scanButtonPaddingEnd = 10.dp,
             scanButtonWidth = 90.dp,
@@ -106,9 +108,10 @@ fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
         WindowWidthSizeClass.Medium -> Sizing(
             appBarWidth = .1f,
             appBarText = 30.sp,
+            actionsBox = 300.dp,
 
             scanButtonPaddingEnd = 10.dp,
-            scanButtonWidth = 150.dp,
+            scanButtonWidth = 120.dp,
             scanButtonHeight = 60.dp,
             scanButtonText = 20.sp,
 
@@ -148,6 +151,7 @@ fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
         WindowWidthSizeClass.Expanded -> Sizing(
             appBarWidth = .125f,
             appBarText = 35.sp,
+            actionsBox = 300.dp,
 
             scanButtonPaddingEnd = 10.dp,
             scanButtonWidth = 150.dp,
@@ -191,8 +195,9 @@ fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
         else -> Sizing(
             appBarWidth = .125f,
             35.sp,
+            actionsBox = 300.dp,
 
-            scanButtonPaddingEnd = 10.dp,
+            scanButtonPaddingEnd = 20.dp,
             scanButtonWidth = 150.dp,
             scanButtonHeight = 60.dp,
             scanButtonText = 20.sp,
