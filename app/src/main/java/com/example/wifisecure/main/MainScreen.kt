@@ -3,7 +3,7 @@ This file contains the root level code for the main page.
  */
 
 @file:OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-package com.example.wifisecure.mainactivity
+package com.example.wifisecure.main
 
 import android.Manifest
 import android.app.AlertDialog
@@ -25,7 +25,7 @@ import androidx.core.content.ContextCompat
 /*
   Activity for rendering and managing the main page.
  */
-class MainActivity : ComponentActivity() {
+class MainScreen : ComponentActivity() {
 
     // Class object for performing Wifi operations.
     lateinit var wifiManager: WifiManager
@@ -97,11 +97,11 @@ class MainActivity : ComponentActivity() {
             // results for cleanup and then unregisters the broadcast receiver.
             override fun onReceive(context: Context?, intent: Intent?) {
                 if(ContextCompat.checkSelfPermission(
-                        this@MainActivity, Manifest.permission.ACCESS_FINE_LOCATION
+                        this@MainScreen, Manifest.permission.ACCESS_FINE_LOCATION
                     ) == PackageManager.PERMISSION_GRANTED){
                     val results = wifiManager.scanResults
                     wifiScanResults(results)
-                    cleanupWifiScan(this@MainActivity)
+                    cleanupWifiScan(this@MainScreen)
                 }
                 else{
                     return

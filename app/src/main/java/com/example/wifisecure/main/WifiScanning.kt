@@ -3,7 +3,7 @@ This file contains variables related to Wi-Fi scanning
 and also Wi-Fi helper functions.
  */
 
-package com.example.wifisecure.mainactivity
+package com.example.wifisecure.main
 
 import android.content.Context
 import android.content.Intent

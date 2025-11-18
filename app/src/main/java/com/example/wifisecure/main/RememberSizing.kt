@@ -2,7 +2,7 @@
 This file contains the code for making the UI adapt to different screen orientations.
  */
 
-package com.example.wifisecure.mainactivity
+package com.example.wifisecure.main
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
