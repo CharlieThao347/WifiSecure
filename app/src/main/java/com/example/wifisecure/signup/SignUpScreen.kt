@@ -1,13 +1,9 @@
-package com.example.wifisecure.signup
-
 /*
-This file contains the code for the signup page.
+This file contains code for the signup screen.
  */
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+package com.example.wifisecure.signup
+
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -17,6 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -51,20 +49,12 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.ui.graphics.Color
-
-class SignUpActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            SignUpScreen()
-        }
-    }
-}
+import androidx.navigation.NavController
+import com.example.wifisecure.ui.theme.Routes
 
 // Composable that renders the login page.
 @Composable
-fun SignUpScreen() {
+fun SignUpScreen(navController: NavController) {
     // State for name.
     var name by remember { mutableStateOf("") }
     // State for email.
@@ -144,8 +134,8 @@ fun SignUpScreen() {
                 },
                 leadingIcon = {
                     Icon(
-                        Icons.Default.AccountCircle,
-                        contentDescription = "Account Icon"
+                        Icons.Default.Person,
+                        contentDescription = "Person Icon"
                     )
                 },
                 shape = RoundedCornerShape(7.dp),
@@ -277,9 +267,19 @@ fun SignUpScreen() {
                 onClick = {
                     // Set error messages if user tries to click "Register" button with an empty text field.
                     nameError = if (name.isBlank()) "Name is required" else ""
-                    emailError = if (email.isBlank()) "Email is required" else ""
+                    emailError = if (email.isBlank())
+                                    "Email is required"
+                                else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches())
+                                    "Please enter a valid email"
+                                else
+                                    ""
                     passwordError = if (password.isBlank()) "Password is required" else ""
-                    confirmPasswordError = if (confirmPassword.isBlank()) "Password is required" else ""
+                    confirmPasswordError = if (confirmPassword.isBlank())
+                                                "Password is required"
+                                            else if (confirmPassword != password)
+                                                "Password do not match"
+                                            else
+                                                ""
                     // Login logic.
                     if (nameError.isEmpty() && emailError.isEmpty() && passwordError.isEmpty() && confirmPasswordError.isEmpty()) {
                         //handle login logic
@@ -296,8 +296,18 @@ fun SignUpScreen() {
                 Text(text = "Register")
             }
 
-            Spacer(modifier = Modifier.height(15.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
+            // "Already have an account" text.
+            Row {
+                Text(text = "Already have an account? ")
+                Text(
+                    text = "Login",
+                    color = Color(0xFF27619b),
+                    modifier = Modifier.clickable {
+                        navController.navigate(Routes.loginScreen)
+                    })
+            }
         }
     }
 }

@@ -19,7 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WifiSecure">
         <activity
-            android:name=".login.LoginActivity"
+            android:name=".ui.theme.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.WifiSecure">

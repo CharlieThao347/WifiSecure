@@ -1,5 +1,5 @@
 /*
-This file contains the code for making the UI adapt to different screen orientations.
+This file contains the code for making the UI adapt to different screen sizes.
  */
 
 package com.example.wifisecure.main
