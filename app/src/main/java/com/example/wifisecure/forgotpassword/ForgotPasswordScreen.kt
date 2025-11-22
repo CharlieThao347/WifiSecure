@@ -4,6 +4,7 @@ This file contains the code for the forgot password page.
 
 package com.example.wifisecure.forgotpassword
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,19 +37,24 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.navigation.NavController
-import com.example.wifisecure.ui.theme.Routes
+import androidx.compose.ui.platform.LocalContext
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import kotlin.text.ifEmpty
 
 // Composable that renders the forgot password page.
 @Composable
-fun ForgotPasswordScreen(navController: NavController)
+fun ForgotPasswordScreen()
 {
+    // Used to access app resources and information. Tied
+    // to the activity (MainActivity).
+    val activityContext = LocalContext.current
     // State for email.
     var email by remember { mutableStateOf("") }
     // State for email error message.
@@ -65,7 +71,7 @@ fun ForgotPasswordScreen(navController: NavController)
         // State to keep track if animation is playing.
         var isPlaying by remember { mutableStateOf(true) }
         // State to control the speed of the animation.
-        var speed by remember { mutableStateOf(.8f) }
+        var speed by remember { mutableFloatStateOf(.8f) }
         // State to hold the lottie composition, which accepts the lottie composition result.
         val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.landing_page_animation))
         // Controls the animation.
@@ -127,13 +133,24 @@ fun ForgotPasswordScreen(navController: NavController)
 
             Spacer(modifier = Modifier.height(25.dp))
 
-            // Enter button.
+            // Submit button.
             Button(
                 onClick = {
                     // Set error messages if user tries to click "Enter" button with an empty text field.
                     emailError = if (email.isBlank()) "Email is required" else ""
+                    // Send password reset email. Handled by Firebase.
                     if (emailError.isEmpty()) {
-                        //handle forgot password logic
+                        Firebase.auth.sendPasswordResetEmail(email)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    Toast.makeText(activityContext, "Check your email to reset password.",
+                                        Toast.LENGTH_SHORT).show()
+                                }
+                                else {
+                                    Toast.makeText(activityContext, "Registered email not found.",
+                                        Toast.LENGTH_SHORT).show()
+                                }
+                            }
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -144,7 +161,7 @@ fun ForgotPasswordScreen(navController: NavController)
                     contentColor = Color.White
                 )
             ) {
-                Text(text = "Enter")
+                Text(text = "Submit")
             }
         }
     }

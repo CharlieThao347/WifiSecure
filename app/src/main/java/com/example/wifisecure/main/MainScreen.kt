@@ -67,6 +67,7 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -75,6 +76,9 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.wifisecure.ui.theme.AuthState
+import com.example.wifisecure.ui.theme.AuthViewModel
+import com.example.wifisecure.ui.theme.Routes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -88,8 +92,22 @@ composables that render everything below the app bar.
 @Composable
 fun MainScreen(
     navController: NavController,
-    windowSizeClass: WindowSizeClass
+    windowSizeClass: WindowSizeClass,
+    authViewModel: AuthViewModel
 ) {
+    // ViewModel variable for authentication state.
+    val authState = authViewModel.authState.collectAsState()
+    // Runs when the authentication state changes.
+    LaunchedEffect(authState.value) {
+        when(authState.value) {
+            // Navigates to login screen when user logs out.
+            is AuthState.Unauthenticated ->
+                navController.navigate (Routes.loginScreen)
+            // Do nothing.
+            else -> Unit
+        }
+    }
+
     // Used for UI screen adaptiveness.
     val sizing = rememberSizing(windowSizeClass)
 
@@ -100,8 +118,8 @@ fun MainScreen(
     // to the activity (MainActivity).
     val activityContext = LocalContext.current
 
-    // Declaration of the ViewModel
-    val viewModel: MainViewModel = viewModel(
+    // Declaration of the Wifi ViewModel
+    val wifiViewModel: MainViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -111,15 +129,15 @@ fun MainScreen(
         }
     )
 
-    // ViewModel variables for UI.
-    val wifiList by viewModel.wifiList.collectAsState()
-    val isScanning by viewModel.isScanning.collectAsState()
-    val isNetworkEnabled by viewModel.isNetworkEnabled.collectAsState()
-    val isGpsEnabled by viewModel.isGpsEnabled.collectAsState()
+    // Wifi ViewModel variables for UI.
+    val wifiList by wifiViewModel.wifiList.collectAsState()
+    val isScanning by wifiViewModel.isScanning.collectAsState()
+    val isNetworkEnabled by wifiViewModel.isNetworkEnabled.collectAsState()
+    val isGpsEnabled by wifiViewModel.isGpsEnabled.collectAsState()
 
     // Updates location setting variables.
     val locationManager = appContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    viewModel.updateLocationSetting(
+    wifiViewModel.updateLocationSetting(
         locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER),
         locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
     )
@@ -129,7 +147,7 @@ fun MainScreen(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.updateLocationSetting(
+                wifiViewModel.updateLocationSetting(
                     locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER),
                     locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 )
@@ -145,7 +163,7 @@ fun MainScreen(
     )
     // If user granted permission, proceed with the Wi-Fi scan.
     { granted ->
-        if (granted) viewModel.onPermissionGranted()
+        if (granted) wifiViewModel.onPermissionGranted()
     }
 
     // Checks for the required prerequisites before performing Wi-Fi scanning.
@@ -171,29 +189,33 @@ fun MainScreen(
         ) == PackageManager.PERMISSION_GRANTED
         if (granted) {
             // If granted, proceed with the Wi-Fi scan.
-            viewModel.onPermissionGranted()
+            wifiViewModel.onPermissionGranted()
         } else {
             // Otherwise, launch the permission dialog.
             requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
 
+    // Function that handles logging out the user.
+    val logout: () -> Unit = {
+        authViewModel.logout()
+    }
+
     // Function that handles the click of a scan button.
     // Defined this way so that it can be pass into composables
     // as an argument.
     val onScanClick: () -> Unit = {
-        viewModel.onScanClicked(checkForPrerequisites)
+        wifiViewModel.onScanClicked(checkForPrerequisites)
     }
 
     // State for the drawer.
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     // Thread/coroutine for opening and closing drawer.
     val scope = rememberCoroutineScope()
-
     // Renders the drawer.
     ModalNavigationDrawer(
         drawerContent = {
-            Drawer(sizing)
+            Drawer(sizing, authState.value, logout)
         },
         drawerState = drawerState
     ) {
@@ -236,7 +258,7 @@ fun MainScreen(
 
 // Composable that renders the drawer.
 @Composable
-fun Drawer(sizing: Sizing) {
+fun Drawer(sizing: Sizing, authState: AuthState, logout: () -> Unit) {
     ModalDrawerSheet (
         modifier = Modifier.width(sizing.drawerWidth)
     )
@@ -272,26 +294,32 @@ fun Drawer(sizing: Sizing) {
                         contentDescription = "VPN Icon"
                     )
                 },
-                onClick = { /* Handle click */ }
+                onClick = {}
             )
-            HorizontalDivider()
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .padding(sizing.logoutButtonPadding),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Logout button.
-                Button(
-                    onClick = {},
-                    modifier = Modifier.size(sizing.logoutButtonWidth, sizing.logoutButtonHeight),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF27619b),
-                        contentColor = Color.White
-                    ),
-                )
-                { Text("Log Out") }
+            // Show logout button only if user is authenticated.
+            if (authState == AuthState.Authenticated) {
+                HorizontalDivider()
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .padding(sizing.logoutButtonPadding),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Logout button.
+                    Button(
+                        onClick = { logout() },
+                        modifier = Modifier.size(
+                            sizing.logoutButtonWidth,
+                            sizing.logoutButtonHeight
+                        ),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF27619b),
+                            contentColor = Color.White
+                        ),
+                    )
+                    { Text("Log Out") }
+                }
             }
         }
     }
@@ -323,15 +351,18 @@ fun TopAppBar(
             },
             // Renders the menu icon that appears in the left-side of the app bar.
             navigationIcon = {
-                IconButton(onClick = {
-                    scope.launch {
-                        if (drawerState.isClosed) {
-                            drawerState.open()
-                        } else {
-                            drawerState.close()
+                IconButton(
+                    onClick = {
+                        scope.launch {
+                            if (drawerState.isClosed) {
+                                drawerState.open()
+                            } else {
+                                drawerState.close()
+                            }
                         }
-                    }
-                }) {
+                },
+                    modifier = Modifier.size(sizing.menuIcon)
+                ) {
                     Icon(
                         imageVector = Icons.Filled.Menu,
                         contentDescription = "Menu Icon",

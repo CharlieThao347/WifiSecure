@@ -4,6 +4,7 @@ This file contains code for the signup screen.
 
 package com.example.wifisecure.signup
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -48,13 +49,52 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
+import com.example.wifisecure.ui.theme.AuthState
+import com.example.wifisecure.ui.theme.AuthViewModel
 import com.example.wifisecure.ui.theme.Routes
 
 // Composable that renders the login page.
 @Composable
-fun SignUpScreen(navController: NavController) {
+fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
+    // Used to access app resources and information. Tied
+    // to the activity (MainActivity).
+    val activityContext = LocalContext.current
+    // ViewModel variable for authentication state.
+    val authState = authViewModel.authState.collectAsState()
+    // Runs when the authentication state changes.
+    LaunchedEffect(authState.value) {
+        when(authState.value) {
+            // Displays success message, update auth state,
+            // and navigate to login screen if
+            // account was successfully created.
+            is AuthState.SignUpSuccess -> {
+                Toast.makeText(
+                    activityContext,
+                    (authState.value as AuthState.SignUpSuccess).message,
+                    Toast.LENGTH_SHORT
+                ).show()
+                authViewModel.updateFromSignUpState()
+                navController.navigate(Routes.loginScreen)
+            }
+            // Display error message if error occurred.
+            is AuthState.Error -> {
+                Toast.makeText(
+                    activityContext,
+                    (authState.value as AuthState.Error).message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            // Otherwise, do nothing.
+            else -> Unit
+        }
+    }
+
     // State for name.
     var name by remember { mutableStateOf("") }
     // State for email.
@@ -87,7 +127,7 @@ fun SignUpScreen(navController: NavController) {
         // State to keep track if animation is playing.
         var isPlaying by remember { mutableStateOf(true) }
         // State to control the speed of the animation.
-        var speed by remember { mutableStateOf(.8f) }
+        var speed by remember { mutableFloatStateOf(.8f) }
         // State to hold the lottie composition, which accepts the lottie composition result.
         val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.landing_page_animation))
         // Controls the animation.
@@ -277,14 +317,15 @@ fun SignUpScreen(navController: NavController) {
                     confirmPasswordError = if (confirmPassword.isBlank())
                                                 "Password is required"
                                             else if (confirmPassword != password)
-                                                "Password do not match"
+                                                "Passwords do not match"
                                             else
                                                 ""
-                    // Login logic.
+                    // Signup.
                     if (nameError.isEmpty() && emailError.isEmpty() && passwordError.isEmpty() && confirmPasswordError.isEmpty()) {
-                        //handle login logic
+                        authViewModel.signUp(email, password)
                     }
                 },
+                enabled = authState.value != AuthState.Loading,
                 modifier = Modifier.fillMaxWidth()
                     .padding(horizontal = 50.dp)
                     .height(47.dp),

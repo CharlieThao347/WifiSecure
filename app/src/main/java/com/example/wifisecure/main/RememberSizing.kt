@@ -146,7 +146,7 @@ fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
 
             appBarWidth = .1f,
             appBarText = 30.sp,
-            menuIcon = 50.dp,
+            menuIcon = 55.dp,
             menuPaddingStart = 10.dp,
             actionsBox = 300.dp,
 
@@ -202,7 +202,7 @@ fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
 
             appBarWidth = .125f,
             appBarText = 35.sp,
-            menuIcon = 50.dp,
+            menuIcon = 60.dp,
             menuPaddingStart = 10.dp,
             actionsBox = 300.dp,
 

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "325201255220",
+    "project_id": "wifi-10157",
+    "storage_bucket": "wifi-10157.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:325201255220:android:1bdab8545b942055f6e361",
+        "android_client_info": {
+          "package_name": "com.example.wifisecure"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQr3yvwvodvNHcibM4uOQUEyhOpMfYaN4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

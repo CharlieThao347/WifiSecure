@@ -4,6 +4,7 @@ This file contains the code for the login page.
 
 package com.example.wifisecure.login
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -47,14 +48,44 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
+import com.example.wifisecure.ui.theme.AuthState
+import com.example.wifisecure.ui.theme.AuthViewModel
 import com.example.wifisecure.ui.theme.Routes
 
 // Composable that renders the login page.
 @Composable
-fun LoginScreen(navController: NavController)
+fun LoginScreen(navController: NavController, authViewModel: AuthViewModel)
 {
+    // Used to access app resources and information. Tied
+    // to the activity (MainActivity).
+    val activityContext = LocalContext.current
+    // ViewModel variable for authentication state.
+    val authState = authViewModel.authState.collectAsState()
+    // Runs when the authentication state changes.
+    LaunchedEffect(authState.value) {
+        when(authState.value) {
+            // Navigate to main screen if authenticated.
+            is AuthState.Authenticated ->
+                navController.navigate (Routes.mainScreen)
+            // Display error message if error occurred..
+            is AuthState.Error -> {
+                Toast.makeText(
+                    activityContext,
+                    (authState.value as AuthState.Error).message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            // Otherwise, do nothing.
+            else -> Unit
+        }
+    }
+
     // State for email.
     var email by remember { mutableStateOf("") }
     // State for password.
@@ -77,7 +108,7 @@ fun LoginScreen(navController: NavController)
         // State to keep track if animation is playing.
         var isPlaying by remember { mutableStateOf(true) }
         // State to control the speed of the animation.
-        var speed by remember { mutableStateOf(.8f) }
+        var speed by remember { mutableFloatStateOf(.8f) }
         // State to hold the lottie composition, which accepts the lottie composition result.
         val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.landing_page_animation))
         // Controls the animation.
@@ -187,11 +218,12 @@ fun LoginScreen(navController: NavController)
                     // Set error messages if user tries to click "Login" button with an empty text field.
                     emailError = if (email.isBlank()) "Email is required" else ""
                     passwordError = if (password.isBlank()) "Password is required" else ""
-                    // Login logic.
+                    // Login.
                     if (emailError.isEmpty() && passwordError.isEmpty()) {
-                        //handle login logic
+                        authViewModel.login(email, password)
                     }
                 },
+                enabled = authState.value != AuthState.Loading,
                 modifier = Modifier.fillMaxWidth()
                     .padding(horizontal = 50.dp)
                     .height(47.dp),
@@ -236,6 +268,7 @@ fun LoginScreen(navController: NavController)
                     text = "Continue as guest.",
                     color = Color(0xFF27619b),
                     modifier = Modifier.clickable {
+                        authViewModel.continueAsGuest()
                         navController.navigate(Routes.mainScreen)
                     })
             }
