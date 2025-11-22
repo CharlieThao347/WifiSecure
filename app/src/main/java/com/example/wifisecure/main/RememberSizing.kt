@@ -15,8 +15,22 @@ import androidx.compose.runtime.remember
 
 // Items that could have different sizes based on the screen size.
 data class Sizing(
+    val drawerWidth: Dp,
+    val drawerPadding: Dp,
+    val drawerSpacer: Dp,
+    val accountTextPadding: Dp,
+    val accountTextSize: TextUnit,
+    val drawerVpnTextPadding: Dp,
+    val drawerVpnTextSize: TextUnit,
+    val logoutButtonPadding: Dp,
+    val logoutButtonWidth: Dp,
+    val logoutButtonHeight: Dp,
+
+
     val appBarWidth: Float,
     val appBarText: TextUnit,
+    val menuIcon: Dp,
+    val menuPaddingStart: Dp,
     val actionsBox: Dp,
 
     val scanButtonPaddingEnd: Dp,
@@ -63,14 +77,27 @@ data class Sizing(
 fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
     when (window.widthSizeClass) {
         WindowWidthSizeClass.Compact -> Sizing(
+            drawerWidth = 200.dp,
+            drawerPadding = 5.dp,
+            drawerSpacer = 10.dp,
+            accountTextPadding = 20.dp,
+            accountTextSize = 20.sp,
+            drawerVpnTextPadding = 13.dp,
+            drawerVpnTextSize = 13.sp,
+            logoutButtonPadding = 23.dp,
+            100.dp,
+            logoutButtonHeight = 40.dp,
+
             appBarWidth = .1f,
             appBarText = 25.sp,
-            actionsBox = 300.dp,
+            menuIcon = 35.dp,
+            menuPaddingStart = 5.dp,
+            actionsBox = 150.dp,
 
             scanButtonPaddingEnd = 10.dp,
-            scanButtonWidth = 90.dp,
-            scanButtonHeight = 40.dp,
-            scanButtonText = 15.sp,
+            scanButtonWidth = 60.dp,
+            scanButtonHeight = 35.dp,
+            scanButtonText = 10.sp,
 
             foundText = 17.sp,
             foundPaddingWidth = 8.dp,
@@ -106,8 +133,21 @@ fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
             vpnText = 18.sp
         )
         WindowWidthSizeClass.Medium -> Sizing(
+            drawerWidth = 360.dp,
+            drawerPadding = 16.dp,
+            drawerSpacer = 12.dp,
+            accountTextPadding = 30.dp,
+            accountTextSize = 25.sp,
+            drawerVpnTextPadding = 20.dp,
+            drawerVpnTextSize = 18.sp,
+            logoutButtonPadding = 20.dp,
+            120.dp,
+            logoutButtonHeight = 50.dp,
+
             appBarWidth = .1f,
             appBarText = 30.sp,
+            menuIcon = 50.dp,
+            menuPaddingStart = 10.dp,
             actionsBox = 300.dp,
 
             scanButtonPaddingEnd = 10.dp,
@@ -149,8 +189,21 @@ fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
             vpnText = 18.sp
         )
         WindowWidthSizeClass.Expanded -> Sizing(
+            drawerWidth = 360.dp,
+            drawerPadding = 16.dp,
+            drawerSpacer = 12.dp,
+            accountTextPadding = 30.dp,
+            accountTextSize = 25.sp,
+            drawerVpnTextPadding = 20.dp,
+            drawerVpnTextSize = 18.sp,
+            logoutButtonPadding = 20.dp,
+            120.dp,
+            logoutButtonHeight = 50.dp,
+
             appBarWidth = .125f,
             appBarText = 35.sp,
+            menuIcon = 50.dp,
+            menuPaddingStart = 10.dp,
             actionsBox = 300.dp,
 
             scanButtonPaddingEnd = 10.dp,
@@ -193,8 +246,21 @@ fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
         )
         // placeholder
         else -> Sizing(
+            drawerWidth = 360.dp,
+            drawerPadding = 16.dp,
+            drawerSpacer = 12.dp,
+            accountTextPadding = 30.dp,
+            accountTextSize = 25.sp,
+            drawerVpnTextPadding = 20.dp,
+            drawerVpnTextSize = 18.sp,
+            logoutButtonPadding = 20.dp,
+            120.dp,
+            logoutButtonHeight = 50.dp,
+
             appBarWidth = .125f,
             35.sp,
+            menuIcon = 30.dp,
+            menuPaddingStart = 10.dp,
             actionsBox = 300.dp,
 
             scanButtonPaddingEnd = 20.dp,

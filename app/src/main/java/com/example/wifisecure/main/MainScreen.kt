@@ -55,6 +55,17 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.provider.Settings
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.VpnKey
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -64,6 +75,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -173,36 +185,114 @@ fun MainScreen(
         viewModel.onScanClicked(checkForPrerequisites)
     }
 
-    // Renders the app bar.
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                sizing,
-                onScanClick,
-                isScanning
-            )
+    // State for the drawer.
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    // Thread/coroutine for opening and closing drawer.
+    val scope = rememberCoroutineScope()
+
+    // Renders the drawer.
+    ModalNavigationDrawer(
+        drawerContent = {
+            Drawer(sizing)
+        },
+        drawerState = drawerState
+    ) {
+        // Renders the app bar.
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    sizing,
+                    scope,
+                    drawerState,
+                    onScanClick,
+                    isScanning
+                )
+            }
+        )
+        // Renders everything below the app bar.
+        { contentPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(contentPadding)
+            ) {
+                // Renders the "Found" text, which shows how
+                // many networks were found.
+                FoundText(
+                    sizing,
+                    wifiList
+                )
+                // Renders the list of found Wi-Fi.
+                WifiList(
+                    sizing,
+                    wifiList
+                )
+                // Renders the VPN button.
+                VPNButton(sizing)
+            }
         }
+    }
+}
+
+// Composable that renders the drawer.
+@Composable
+fun Drawer(sizing: Sizing) {
+    ModalDrawerSheet (
+        modifier = Modifier.width(sizing.drawerWidth)
     )
-    // Renders everything below the app bar.
-    { contentPadding ->
+    {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(contentPadding)
+                .padding(horizontal = sizing.drawerPadding)
         ) {
-            // Renders the "Found" text, which shows how
-            // many networks were found.
-            FoundText(
-                sizing,
-                wifiList
+            Spacer(Modifier.height(sizing.drawerSpacer))
+            // Account text.
+            Text(
+                "Guest",
+                modifier = Modifier.padding(sizing.accountTextPadding),
+                style = MaterialTheme.typography.titleLarge,
+                fontSize = sizing.accountTextSize
             )
-            // Renders the list of found Wi-Fi.
-            WifiList(
-                sizing,
-                wifiList
+            HorizontalDivider()
+            NavigationDrawerItem(
+                // Connect to VPN text.
+                label = {
+                    Text(
+                        "Connect to VPN",
+                        modifier = Modifier.padding(sizing.drawerVpnTextPadding),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontSize = sizing.drawerVpnTextSize
+                    )
+                },
+                selected = false,
+                // VPN Icon.
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.VpnKey,
+                        contentDescription = "VPN Icon"
+                    )
+                },
+                onClick = { /* Handle click */ }
             )
-            // Renders the VPN button.
-            VPNButton(sizing)
+            HorizontalDivider()
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .padding(sizing.logoutButtonPadding),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Logout button.
+                Button(
+                    onClick = {},
+                    modifier = Modifier.size(sizing.logoutButtonWidth, sizing.logoutButtonHeight),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF27619b),
+                        contentColor = Color.White
+                    ),
+                )
+                { Text("Log Out") }
+            }
         }
     }
 }
@@ -212,42 +302,65 @@ fun MainScreen(
 @Composable
 fun TopAppBar(
     sizing: Sizing,
+    scope: CoroutineScope,
+    drawerState: DrawerState,
     onScanClick: () -> Unit,
     isScanning: Boolean
 ) {
-    CenterAlignedTopAppBar(
-        modifier = Modifier.fillMaxHeight(sizing.appBarWidth),
-        // Renders the "WifiSecure" text that appears in the center of the app bar.
-        title = {
-            Box(
-                modifier = Modifier.fillMaxHeight(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    textAlign = TextAlign.Center, text = "WifiSecure",
-                    fontSize = sizing.appBarText
-                )
-            }
-        },
-        // Renders the "Scan" buttons that appears in the right-side of the app bar.
-        actions = {
-                Row (
+        CenterAlignedTopAppBar(
+            modifier = Modifier.fillMaxHeight(sizing.appBarWidth),
+            // Renders the "WifiSecure" text that appears in the center of the app bar.
+            title = {
+                Box(
+                    modifier = Modifier.fillMaxHeight(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        textAlign = TextAlign.Center, text = "WifiSecure",
+                        fontSize = sizing.appBarText
+                    )
+                }
+            },
+            // Renders the menu icon that appears in the left-side of the app bar.
+            navigationIcon = {
+                IconButton(onClick = {
+                    scope.launch {
+                        if (drawerState.isClosed) {
+                            drawerState.open()
+                        } else {
+                            drawerState.close()
+                        }
+                    }
+                }) {
+                    Icon(
+                        imageVector = Icons.Filled.Menu,
+                        contentDescription = "Menu Icon",
+                        modifier = Modifier.size(sizing.menuIcon)
+                            .padding(start = sizing.menuPaddingStart)
+                    )
+                }
+            },
+            // Renders the "Scan" buttons that appears in the right-side of the app bar.
+            actions = {
+                Row(
                     modifier = Modifier.fillMaxHeight().width(sizing.actionsBox),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.End
                 ) {
-                    ScanButtons(sizing,
+                    ScanButtons(
+                        sizing,
                         onScanClick,
                         isScanning
                     )
                 }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color(0xFF27619b),
-            titleContentColor = Color.White
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = Color(0xFF27619b),
+                titleContentColor = Color.White,
+                navigationIconContentColor = Color.White
+            )
         )
-    )
-}
+    }
 
 // Composable that renders the two scan buttons.
 @Composable
@@ -319,7 +432,7 @@ fun ScanButtons(
                 } else {
                     "Scan"
                 },
-                fontSize = sizing.scanButtonText
+                fontSize = sizing.scanButtonText,
             )
         }
     }
