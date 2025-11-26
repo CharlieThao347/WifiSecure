@@ -6,47 +6,51 @@ Holds and updates authentication logic and state.
 package com.example.wifisecure.ui.theme
 
 import androidx.lifecycle.ViewModel
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.auth.ktx.auth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 // Authentication View Model.
 class AuthViewModel : ViewModel() {
     // Firebase Authentication service instance
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val auth = Firebase.auth
     // Stores authentication states. Only accessible by the ViewModel.
     private val _authState = MutableStateFlow<AuthState>(AuthState.Unauthenticated)
     // Read only version of _authState.
     val authState: StateFlow<AuthState> = _authState
 
     // Login function. Handled by Firebase. Updates authentication state.
-    fun login(email : String, password : String){
+    fun login(email : String, password : String) {
         _authState.value = AuthState.Loading
         auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener{ loginTask->
-                if(loginTask.isSuccessful){
-                    _authState.value = AuthState.Authenticated
-                }
-                else{
-                    _authState.value = AuthState.Error(loginTask.exception?.message?:
-                    "An error occurred")
-                }
+            .addOnSuccessListener { loginTask ->
+                _authState.value = AuthState.Authenticated
+            }
+            .addOnFailureListener { loginTask ->
+                _authState.value = AuthState.Error("Error: ${loginTask.message}")
             }
     }
 
     // Signup function. Handled by Firebase. Updates authentication state.
-    fun signUp(email : String, password : String){
+    fun signUp(name: String, email : String, password : String){
+        val db = Firebase.firestore
         _authState.value = AuthState.Loading
         auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener{ signUpTask->
-                if(signUpTask.isSuccessful){
-                    _authState.value = AuthState.SignUpSuccess(
+            .addOnSuccessListener{ signUpTask->
+                // Retrieves the user ID
+                val uid = signUpTask.user!!.uid
+                // Save the user's name in Firestore in the correct place.
+                val data = mapOf("name" to name)
+                db.collection("users")
+                    .document(uid)
+                    .set(data)
+                _authState.value = AuthState.SignUpSuccess(
                     "Account successfully created")
-                }
-                else{
-                    _authState.value = AuthState.Error(signUpTask.exception?.message?:
-                    "An error occurred")
-                }
+            }
+            .addOnFailureListener { signUpTask->
+                _authState.value = AuthState.Error("Error: ${signUpTask.message}")
             }
     }
 

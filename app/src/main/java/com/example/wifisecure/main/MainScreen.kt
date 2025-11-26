@@ -79,6 +79,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.wifisecure.ui.theme.AuthState
 import com.example.wifisecure.ui.theme.AuthViewModel
 import com.example.wifisecure.ui.theme.Routes
+import com.example.wifisecure.ui.theme.UserViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -93,7 +94,8 @@ composables that render everything below the app bar.
 fun MainScreen(
     navController: NavController,
     windowSizeClass: WindowSizeClass,
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    userViewModel: UserViewModel
 ) {
     // ViewModel variable for authentication state.
     val authState = authViewModel.authState.collectAsState()
@@ -101,12 +103,20 @@ fun MainScreen(
     LaunchedEffect(authState.value) {
         when(authState.value) {
             // Navigates to login screen when user logs out.
-            is AuthState.Unauthenticated ->
-                navController.navigate (Routes.loginScreen)
+            is AuthState.Unauthenticated -> {
+                userViewModel.clearUser()
+                navController.navigate(Routes.loginScreen)
+            }
             // Do nothing.
             else -> Unit
         }
     }
+
+    // Retrieves user info if authenticated.
+    if(authState.value == AuthState.Authenticated)
+        userViewModel.retrieveUser()
+    // User ViewModel variables for UI.
+    val userName by userViewModel.name.collectAsState()
 
     // Used for UI screen adaptiveness.
     val sizing = rememberSizing(windowSizeClass)
@@ -215,7 +225,7 @@ fun MainScreen(
     // Renders the drawer.
     ModalNavigationDrawer(
         drawerContent = {
-            Drawer(sizing, authState.value, logout)
+            Drawer(sizing, authState.value, userName, logout)
         },
         drawerState = drawerState
     ) {
@@ -258,7 +268,11 @@ fun MainScreen(
 
 // Composable that renders the drawer.
 @Composable
-fun Drawer(sizing: Sizing, authState: AuthState, logout: () -> Unit) {
+fun Drawer(sizing: Sizing,
+           authState: AuthState,
+           userName: String,
+           logout: () -> Unit
+) {
     ModalDrawerSheet (
         modifier = Modifier.width(sizing.drawerWidth)
     )
@@ -268,13 +282,24 @@ fun Drawer(sizing: Sizing, authState: AuthState, logout: () -> Unit) {
                 .padding(horizontal = sizing.drawerPadding)
         ) {
             Spacer(Modifier.height(sizing.drawerSpacer))
-            // Account text.
-            Text(
-                "Guest",
-                modifier = Modifier.padding(sizing.accountTextPadding),
-                style = MaterialTheme.typography.titleLarge,
-                fontSize = sizing.accountTextSize
-            )
+            // Display account name if user is not a guest.
+            if(authState != AuthState.Guest) {
+                Text(
+                    userName,
+                    modifier = Modifier.padding(sizing.accountTextPadding),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontSize = sizing.accountTextSize
+                )
+            }
+            // Otherwise, display "Guest".
+            else if(authState == AuthState.Guest) {
+                Text(
+                    "Guest",
+                    modifier = Modifier.padding(sizing.accountTextPadding),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontSize = sizing.accountTextSize
+                )
+            }
             HorizontalDivider()
             NavigationDrawerItem(
                 // Connect to VPN text.
@@ -296,8 +321,8 @@ fun Drawer(sizing: Sizing, authState: AuthState, logout: () -> Unit) {
                 },
                 onClick = {}
             )
-            // Show logout button only if user is authenticated.
-            if (authState == AuthState.Authenticated) {
+            // Show logout button only if user is not a guest.
+            if (authState != AuthState.Guest) {
                 HorizontalDivider()
                 Column(
                     modifier = Modifier

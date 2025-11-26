@@ -29,6 +29,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val authViewModel : AuthViewModel by viewModels()
+        val userViewModel : UserViewModel by viewModels()
         setContent {
             // Used for UI screen adaptiveness.
             val windowSizeClass = calculateWindowSizeClass(this)
@@ -46,7 +47,7 @@ class MainActivity : ComponentActivity() {
                     ForgotPasswordScreen()
                 }
                 composable(Routes.mainScreen){
-                    MainScreen(navController, windowSizeClass, authViewModel)
+                    MainScreen(navController, windowSizeClass, authViewModel, userViewModel)
                 }
             })
         }

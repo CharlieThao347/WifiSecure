@@ -322,7 +322,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
                                                 ""
                     // Signup.
                     if (nameError.isEmpty() && emailError.isEmpty() && passwordError.isEmpty() && confirmPasswordError.isEmpty()) {
-                        authViewModel.signUp(email, password)
+                        authViewModel.signUp(name, email, password)
                     }
                 },
                 enabled = authState.value != AuthState.Loading,
