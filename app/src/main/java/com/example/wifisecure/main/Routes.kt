@@ -2,11 +2,12 @@
 This file contains code for the declaration of the navigation routes.
  */
 
-package com.example.wifisecure.ui.theme
+package com.example.wifisecure.main
 
 object Routes {
     var loginScreen = "loginScreen"
     var signUpScreen = "signUpScreen"
     var forgotPasswordScreen = "forgotPasswordScreen"
-    var mainScreen = "mainScreen"
+    var wifiScreen = "wifiScreen"
+    var vpnScreen = "vpnScreen"
 }

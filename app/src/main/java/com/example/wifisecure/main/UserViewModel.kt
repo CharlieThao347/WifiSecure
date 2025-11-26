@@ -1,9 +1,9 @@
-package com.example.wifisecure.ui.theme
-
 /*
 This file contains code for the view model regarding the User.
 Holds and updates user logic and state.
  */
+
+package com.example.wifisecure.main
 
 import androidx.lifecycle.ViewModel
 import com.google.firebase.ktx.Firebase

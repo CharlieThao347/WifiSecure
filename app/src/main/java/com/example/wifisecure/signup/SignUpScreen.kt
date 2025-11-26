@@ -55,9 +55,9 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
-import com.example.wifisecure.ui.theme.AuthState
-import com.example.wifisecure.ui.theme.AuthViewModel
-import com.example.wifisecure.ui.theme.Routes
+import com.example.wifisecure.main.AuthState
+import com.example.wifisecure.main.AuthViewModel
+import com.example.wifisecure.main.Routes
 
 // Composable that renders the login page.
 @Composable

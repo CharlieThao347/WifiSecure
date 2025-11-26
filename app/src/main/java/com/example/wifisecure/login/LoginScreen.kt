@@ -54,9 +54,9 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
-import com.example.wifisecure.ui.theme.AuthState
-import com.example.wifisecure.ui.theme.AuthViewModel
-import com.example.wifisecure.ui.theme.Routes
+import com.example.wifisecure.main.AuthState
+import com.example.wifisecure.main.AuthViewModel
+import com.example.wifisecure.main.Routes
 
 // Composable that renders the login page.
 @Composable
@@ -72,7 +72,7 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel)
         when(authState.value) {
             // Navigate to main screen if authenticated.
             is AuthState.Authenticated ->
-                navController.navigate (Routes.mainScreen)
+                navController.navigate (Routes.wifiScreen)
             // Display error message if error occurred..
             is AuthState.Error -> {
                 Toast.makeText(
@@ -269,7 +269,7 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel)
                     color = Color(0xFF27619b),
                     modifier = Modifier.clickable {
                         authViewModel.continueAsGuest()
-                        navController.navigate(Routes.mainScreen)
+                        navController.navigate(Routes.wifiScreen)
                     })
             }
         }

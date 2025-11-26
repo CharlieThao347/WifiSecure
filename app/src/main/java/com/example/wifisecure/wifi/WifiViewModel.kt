@@ -1,10 +1,10 @@
 /*
-This file contains the code for the main screen View Model.
+This file contains the code for the Wifi View Model.
 Holds and updates UI logic and state. This is the presentation
-layer for the main screen.
+layer for the wifi screen.
  */
 
-package com.example.wifisecure.main
+package com.example.wifisecure.wifi
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,8 +15,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 
-// Main View Model, which takes a WifiScanner object as an argument.
-class MainViewModel (
+// Wifi View Model, which takes a WifiScanner object as an argument.
+class WifiViewModel (
     private val scanner: WifiScannerClass
 ) : ViewModel() {
 

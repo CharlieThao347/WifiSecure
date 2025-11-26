@@ -1,5 +1,6 @@
 /*
-This file contains the code for making the UI adapt to different screen sizes.
+This file contains the code for making
+the UI adapt to different screen sizes for the wifi page.
  */
 
 package com.example.wifisecure.main
@@ -14,14 +15,14 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.remember
 
 // Items that could have different sizes based on the screen size.
-data class Sizing(
+data class WifiSizing(
     val drawerWidth: Dp,
     val drawerPadding: Dp,
     val drawerSpacer: Dp,
     val accountTextPadding: Dp,
     val accountTextSize: TextUnit,
-    val drawerVpnTextPadding: Dp,
-    val drawerVpnTextSize: TextUnit,
+    val drawerTextPadding: Dp,
+    val drawerTextSize: TextUnit,
     val logoutButtonPadding: Dp,
     val logoutButtonWidth: Dp,
     val logoutButtonHeight: Dp,
@@ -38,9 +39,9 @@ data class Sizing(
     val scanButtonHeight: Dp,
     val scanButtonText: TextUnit,
 
-    val foundText: TextUnit,
-    val foundPaddingWidth: Dp,
-    val foundPaddingHeight: Dp,
+    val countText: TextUnit,
+    val countPaddingWidth: Dp,
+    val countPaddingHeight: Dp,
 
     val wifiListPaddingTop: Dp,
     val wifiListHeight: Float,
@@ -74,16 +75,16 @@ data class Sizing(
 
 // Composable that applies different item sizings based on the screen size
 @Composable
-fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
+fun rememberSizingWifi(window: WindowSizeClass): WifiSizing = remember(window) {
     when (window.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> Sizing(
+        WindowWidthSizeClass.Compact -> WifiSizing(
             drawerWidth = 200.dp,
             drawerPadding = 5.dp,
             drawerSpacer = 10.dp,
             accountTextPadding = 20.dp,
             accountTextSize = 20.sp,
-            drawerVpnTextPadding = 13.dp,
-            drawerVpnTextSize = 13.sp,
+            drawerTextPadding = 13.dp,
+            drawerTextSize = 13.sp,
             logoutButtonPadding = 23.dp,
             100.dp,
             logoutButtonHeight = 40.dp,
@@ -99,12 +100,12 @@ fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
             scanButtonHeight = 35.dp,
             scanButtonText = 10.sp,
 
-            foundText = 17.sp,
-            foundPaddingWidth = 8.dp,
-            foundPaddingHeight = 8.dp,
+            countText = 17.sp,
+            countPaddingWidth = 8.dp,
+            countPaddingHeight = 8.dp,
 
             wifiListPaddingTop = 2.dp,
-            wifiListHeight = 0.8f,
+            wifiListHeight = 1f,
             wifiListSpacer = 10.dp,
 
             cardHeight = 120.dp,
@@ -132,14 +133,14 @@ fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
             vpnSpacerHeight = 3.dp,
             vpnText = 18.sp
         )
-        WindowWidthSizeClass.Medium -> Sizing(
+        WindowWidthSizeClass.Medium -> WifiSizing(
             drawerWidth = 360.dp,
             drawerPadding = 16.dp,
             drawerSpacer = 12.dp,
             accountTextPadding = 30.dp,
             accountTextSize = 25.sp,
-            drawerVpnTextPadding = 20.dp,
-            drawerVpnTextSize = 18.sp,
+            drawerTextPadding = 20.dp,
+            drawerTextSize = 18.sp,
             logoutButtonPadding = 20.dp,
             120.dp,
             logoutButtonHeight = 50.dp,
@@ -155,12 +156,12 @@ fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
             scanButtonHeight = 60.dp,
             scanButtonText = 20.sp,
 
-            foundText = 20.sp,
-            foundPaddingWidth = 8.dp,
-            foundPaddingHeight = 8.dp,
+            countText = 20.sp,
+            countPaddingWidth = 8.dp,
+            countPaddingHeight = 8.dp,
 
             wifiListPaddingTop = 2.dp,
-            wifiListHeight = 0.8f,
+            wifiListHeight = 1f,
             wifiListSpacer = 20.dp,
 
             cardHeight = 150.dp,
@@ -188,14 +189,14 @@ fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
             vpnSpacerHeight = 3.dp,
             vpnText = 18.sp
         )
-        WindowWidthSizeClass.Expanded -> Sizing(
+        WindowWidthSizeClass.Expanded -> WifiSizing(
             drawerWidth = 360.dp,
             drawerPadding = 16.dp,
             drawerSpacer = 12.dp,
             accountTextPadding = 30.dp,
             accountTextSize = 25.sp,
-            drawerVpnTextPadding = 20.dp,
-            drawerVpnTextSize = 18.sp,
+            drawerTextPadding = 20.dp,
+            drawerTextSize = 18.sp,
             logoutButtonPadding = 20.dp,
             120.dp,
             logoutButtonHeight = 50.dp,
@@ -211,12 +212,12 @@ fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
             scanButtonHeight = 60.dp,
             scanButtonText = 20.sp,
 
-            foundText = 20.sp,
-            foundPaddingWidth = 8.dp,
-            foundPaddingHeight = 8.dp,
+            countText = 20.sp,
+            countPaddingWidth = 8.dp,
+            countPaddingHeight = 8.dp,
 
             wifiListPaddingTop = 2.dp,
-            wifiListHeight = 0.8f,
+            wifiListHeight = 1f,
             wifiListSpacer = 20.dp,
 
             cardHeight = 175.dp,
@@ -245,14 +246,14 @@ fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
             vpnText = 18.sp
         )
         // placeholder
-        else -> Sizing(
+        else -> WifiSizing(
             drawerWidth = 360.dp,
             drawerPadding = 16.dp,
             drawerSpacer = 12.dp,
             accountTextPadding = 30.dp,
             accountTextSize = 25.sp,
-            drawerVpnTextPadding = 20.dp,
-            drawerVpnTextSize = 18.sp,
+            drawerTextPadding = 20.dp,
+            drawerTextSize = 18.sp,
             logoutButtonPadding = 20.dp,
             120.dp,
             logoutButtonHeight = 50.dp,
@@ -269,8 +270,8 @@ fun rememberSizing(window: WindowSizeClass): Sizing = remember(window) {
             scanButtonText = 20.sp,
 
             20.sp,
-            foundPaddingWidth = 8.dp,
-            foundPaddingHeight = 8.dp,
+            countPaddingWidth = 8.dp,
+            countPaddingHeight = 8.dp,
 
             wifiListPaddingTop = 2.dp,
             wifiListHeight = 0.8f,

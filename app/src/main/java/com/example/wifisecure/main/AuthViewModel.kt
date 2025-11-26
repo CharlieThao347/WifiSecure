@@ -3,7 +3,7 @@ This file contains code for the view model regarding authentication.
 Holds and updates authentication logic and state.
  */
 
-package com.example.wifisecure.ui.theme
+package com.example.wifisecure.main
 
 import androidx.lifecycle.ViewModel
 import com.google.firebase.ktx.Firebase

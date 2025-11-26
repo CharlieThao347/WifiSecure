@@ -3,7 +3,7 @@ This file contains Wi-Fi utilities that clean up the
 results from the Wi-Fi scan.
  */
 
-package com.example.wifisecure.main
+package com.example.wifisecure.wifi
 
 import android.net.wifi.ScanResult
 

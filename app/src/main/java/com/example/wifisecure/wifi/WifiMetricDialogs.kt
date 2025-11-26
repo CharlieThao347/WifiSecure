@@ -2,7 +2,7 @@
 This file contains the UI code for displaying the Wi-Fi metrics
  */
 
-package com.example.wifisecure.main
+package com.example.wifisecure.wifi
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -30,10 +30,11 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import com.example.wifisecure.main.WifiSizing
 
 // Composable that renders the SSID metric.
 @Composable
-fun DisplaySSID(sizing: Sizing, result: WifiList) {
+fun DisplaySSID(sizing: WifiSizing, result: WifiList) {
     // State for dialog pop up.
     var showSSIDDialog by remember { mutableStateOf(false) }
     // Shows "SSID" with blue text color and underlined.
@@ -78,7 +79,7 @@ fun DisplaySSID(sizing: Sizing, result: WifiList) {
 
 // Composable that renders the BSSID metric.
 @Composable
-fun DisplayBSSID(sizing: Sizing, result: WifiList) {
+fun DisplayBSSID(sizing: WifiSizing, result: WifiList) {
     // State for dialog pop up.
     var showBSSIDDialog by remember { mutableStateOf(false) }
     // Shows "BSSID" with blue text color and underlined.
@@ -122,7 +123,7 @@ fun DisplayBSSID(sizing: Sizing, result: WifiList) {
 
 // Composable that renders the RSSI metric.
 @Composable
-fun DisplayRSSI(sizing: Sizing, result: WifiList) {
+fun DisplayRSSI(sizing: WifiSizing, result: WifiList) {
     // State for dialog pop up.
     var showRSSIDialog by remember { mutableStateOf(false) }
     // Shows "RSSI" with blue text color and underlined.
@@ -177,7 +178,7 @@ fun DisplayRSSI(sizing: Sizing, result: WifiList) {
 
 // Composable that renders the Encryption metric.
 @Composable
-fun DisplayEncryption(sizing: Sizing, result: WifiList) {
+fun DisplayEncryption(sizing: WifiSizing, result: WifiList) {
     // State for dialog pop up
     var showEncryptionDialog by remember { mutableStateOf(false) }
 
@@ -228,7 +229,7 @@ fun DisplayEncryption(sizing: Sizing, result: WifiList) {
 
 // Composable that renders the Frequency metric.
 @Composable
-fun DisplayFrequency(sizing: Sizing, result: WifiList) {
+fun DisplayFrequency(sizing: WifiSizing, result: WifiList) {
     // State for dialog pop up
     var showFrequencyBandDialog by remember { mutableStateOf(false) }
     // Shows "Frequency" with blue text color and underlined.

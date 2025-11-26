@@ -3,7 +3,7 @@ This file contains code for the entry point of the app and navigation routes.
  */
 
 @file:OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-package com.example.wifisecure.ui.theme
+package com.example.wifisecure.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,8 +17,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.wifisecure.forgotpassword.ForgotPasswordScreen
 import com.example.wifisecure.login.LoginScreen
-import com.example.wifisecure.main.MainScreen
 import com.example.wifisecure.signup.SignUpScreen
+import com.example.wifisecure.vpn.VpnScreen
+import com.example.wifisecure.wifi.WifiScreen
 
 /*
 Entry point of the app.
@@ -36,20 +37,26 @@ class MainActivity : ComponentActivity() {
             // Used for navigation.
             val navController = rememberNavController()
             // Defining the routes.
-            NavHost(navController = navController, startDestination = Routes.loginScreen, builder = {
-                composable(Routes.loginScreen){
-                    LoginScreen(navController, authViewModel)
-                }
-                composable(Routes.signUpScreen){
-                    SignUpScreen(navController, authViewModel)
-                }
-                composable(Routes.forgotPasswordScreen){
-                    ForgotPasswordScreen()
-                }
-                composable(Routes.mainScreen){
-                    MainScreen(navController, windowSizeClass, authViewModel, userViewModel)
-                }
-            })
+            NavHost(
+                navController = navController,
+                startDestination = Routes.loginScreen,
+                builder = {
+                    composable(Routes.loginScreen) {
+                        LoginScreen(navController, authViewModel)
+                    }
+                    composable(Routes.signUpScreen) {
+                        SignUpScreen(navController, authViewModel)
+                    }
+                    composable(Routes.forgotPasswordScreen) {
+                        ForgotPasswordScreen()
+                    }
+                    composable(Routes.wifiScreen) {
+                        WifiScreen(navController, windowSizeClass, authViewModel, userViewModel)
+                    }
+                    composable(Routes.vpnScreen) {
+                        VpnScreen(navController, windowSizeClass, authViewModel, userViewModel)
+                    }
+                })
         }
     }
 }

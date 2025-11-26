@@ -1,9 +1,9 @@
 /*
 This file contains code for the WifiScanner Class.
-This is the data layer for the main screen.
+This is the data layer for the wifi screen.
  */
 
-package com.example.wifisecure.main
+package com.example.wifisecure.wifi
 
 import android.Manifest
 import android.content.BroadcastReceiver

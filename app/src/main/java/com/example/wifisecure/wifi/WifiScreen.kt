@@ -1,9 +1,9 @@
 /*
-This file contains the code for the main screen.
-UI layer for the main screen.
+This file contains the code for the wifi screen.
+UI layer for the wifi screen.
  */
 
-package com.example.wifisecure.main
+package com.example.wifisecure.wifi
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,10 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
@@ -55,8 +52,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.provider.Settings
+import androidx.compose.foundation.background
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.VpnKey
+import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.HorizontalDivider
@@ -76,22 +76,24 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.example.wifisecure.ui.theme.AuthState
-import com.example.wifisecure.ui.theme.AuthViewModel
-import com.example.wifisecure.ui.theme.Routes
-import com.example.wifisecure.ui.theme.UserViewModel
+import com.example.wifisecure.main.AuthState
+import com.example.wifisecure.main.AuthViewModel
+import com.example.wifisecure.main.Routes
+import com.example.wifisecure.main.UserViewModel
+import com.example.wifisecure.main.WifiSizing
+import com.example.wifisecure.main.rememberSizingWifi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /*
-Root level Composable that renders the main page.
+Root level Composable that renders the wifi page.
 Renders the app bar and calls other
 composables that render everything below the app bar.
 */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(
+fun WifiScreen(
     navController: NavController,
     windowSizeClass: WindowSizeClass,
     authViewModel: AuthViewModel,
@@ -119,7 +121,7 @@ fun MainScreen(
     val userName by userViewModel.name.collectAsState()
 
     // Used for UI screen adaptiveness.
-    val sizing = rememberSizing(windowSizeClass)
+    val sizing = rememberSizingWifi(windowSizeClass)
 
     // Used to access app resources and information. Tied
     // to the app's entire lifecycle.
@@ -129,12 +131,12 @@ fun MainScreen(
     val activityContext = LocalContext.current
 
     // Declaration of the Wifi ViewModel
-    val wifiViewModel: MainViewModel = viewModel(
+    val wifiViewModel: WifiViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 val scanner = WifiScannerClass(appContext)
-                return MainViewModel(scanner) as T
+                return WifiViewModel(scanner) as T
             }
         }
     )
@@ -225,7 +227,7 @@ fun MainScreen(
     // Renders the drawer.
     ModalNavigationDrawer(
         drawerContent = {
-            Drawer(sizing, authState.value, userName, logout)
+            Drawer(navController, sizing, authState.value, userName, logout)
         },
         drawerState = drawerState
     ) {
@@ -248,9 +250,9 @@ fun MainScreen(
                     .fillMaxSize()
                     .padding(contentPadding)
             ) {
-                // Renders the "Found" text, which shows how
+                // Renders the "Wifi" count text, which shows how
                 // many networks were found.
-                FoundText(
+                WifiCountText(
                     sizing,
                     wifiList
                 )
@@ -259,8 +261,6 @@ fun MainScreen(
                     sizing,
                     wifiList
                 )
-                // Renders the VPN button.
-                VPNButton(sizing)
             }
         }
     }
@@ -268,11 +268,14 @@ fun MainScreen(
 
 // Composable that renders the drawer.
 @Composable
-fun Drawer(sizing: Sizing,
-           authState: AuthState,
-           userName: String,
-           logout: () -> Unit
-) {
+fun Drawer(
+    navController: NavController,
+    sizing: WifiSizing,
+    authState: AuthState,
+    userName: String,
+    logout: () -> Unit
+)
+{
     ModalDrawerSheet (
         modifier = Modifier.width(sizing.drawerWidth)
     )
@@ -302,13 +305,33 @@ fun Drawer(sizing: Sizing,
             }
             HorizontalDivider()
             NavigationDrawerItem(
+                // Scan for Wi-Fi text.
+                label = {
+                    Text(
+                        "Scan for Wi-Fi",
+                        modifier = Modifier.padding(sizing.drawerTextPadding),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontSize = sizing.drawerTextSize
+                    )
+                },
+                selected = true,
+                // Wi-Fi Icon.
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Wifi,
+                        contentDescription = "Wi-Fi Icon"
+                    )
+                },
+                onClick = {}
+            )
+            NavigationDrawerItem(
                 // Connect to VPN text.
                 label = {
                     Text(
                         "Connect to VPN",
-                        modifier = Modifier.padding(sizing.drawerVpnTextPadding),
+                        modifier = Modifier.padding(sizing.drawerTextPadding),
                         style = MaterialTheme.typography.titleMedium,
-                        fontSize = sizing.drawerVpnTextSize
+                        fontSize = sizing.drawerTextSize
                     )
                 },
                 selected = false,
@@ -319,11 +342,12 @@ fun Drawer(sizing: Sizing,
                         contentDescription = "VPN Icon"
                     )
                 },
-                onClick = {}
+                onClick = {
+                    navController.navigate(Routes.vpnScreen)
+                }
             )
             // Show logout button only if user is not a guest.
             if (authState != AuthState.Guest) {
-                HorizontalDivider()
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -354,7 +378,7 @@ fun Drawer(sizing: Sizing,
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(
-    sizing: Sizing,
+    sizing: WifiSizing,
     scope: CoroutineScope,
     drawerState: DrawerState,
     onScanClick: () -> Unit,
@@ -421,7 +445,7 @@ fun TopAppBar(
 // Composable that renders the two scan buttons.
 @Composable
 fun ScanButtons(
-    sizing: Sizing,
+    sizing: WifiSizing,
     onScan: () -> Unit,
     isScanning: Boolean)
 {
@@ -494,21 +518,21 @@ fun ScanButtons(
     }
 }
 
-// Composable that renders "Found" text.
+// Composable that renders "Wifi" count text.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FoundText(
-    sizing: Sizing,
+fun WifiCountText(
+    sizing: WifiSizing,
     wifiList: List<WifiList>
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
     ) {
         Text(
-            text = "Found(${wifiList.size})",
-            modifier = Modifier.padding(sizing.foundPaddingWidth,
-                sizing.foundPaddingHeight),
-            fontSize = sizing.foundText,
+            text = "Wi-Fi(${wifiList.size})",
+            modifier = Modifier.padding(sizing.countPaddingWidth,
+                sizing.countPaddingHeight),
+            fontSize = sizing.countText,
             fontWeight = FontWeight.Bold
         )
     }
@@ -517,7 +541,7 @@ fun FoundText(
 // Composable that renders the list of WiFi cards.
 @Composable
 fun WifiList(
-    sizing: Sizing,
+    sizing: WifiSizing,
     wifiList: List<WifiList>
 ) {
     // Structures the list in a column.
@@ -555,39 +579,5 @@ fun WifiList(
                 }
             }
         }
-    }
-}
-
-// Composable that renders the VPN toggle button.
-@Composable
-fun VPNButton(sizing: Sizing) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .padding(sizing.vpnButtonPadding),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Button(
-            onClick = {},
-            shape = CircleShape,
-            modifier = Modifier.size(sizing.vpnButton),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF27619b),
-                contentColor = Color.White
-            ),
-        ) {
-            Icon(
-                imageVector = Icons.Filled.PowerSettingsNew,
-                contentDescription = "Power Button Icon",
-                modifier = Modifier.size(sizing.powerIcon)
-            )
-        }
-        Spacer(modifier = Modifier.height(sizing.vpnSpacerHeight))
-        Text(
-            text = "Connect to VPN",
-            fontSize = sizing.vpnText,
-            fontWeight = FontWeight.Bold
-        )
     }
 }
