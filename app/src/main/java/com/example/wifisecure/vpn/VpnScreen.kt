@@ -5,6 +5,10 @@ UI layer for the vpn screen.
 
 package com.example.wifisecure.vpn
 
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import com.example.wifisecure.main.VpnSizing
 import com.example.wifisecure.main.rememberSizingVpn
@@ -45,10 +49,10 @@ import androidx.navigation.NavController
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
@@ -59,6 +63,7 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
@@ -68,6 +73,8 @@ import com.example.wifisecure.main.AuthState
 import com.example.wifisecure.main.AuthViewModel
 import com.example.wifisecure.main.Routes
 import com.example.wifisecure.main.UserViewModel
+import com.example.wifisecure.wifi.WifiViewModel
+import com.wireguard.android.backend.GoBackend
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -80,7 +87,9 @@ fun VpnScreen(
     navController: NavController,
     windowSizeClass: WindowSizeClass,
     authViewModel: AuthViewModel,
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    wifiViewModel: WifiViewModel,
+    vpnViewModel: VpnViewModel
 ) {
     // ViewModel variable for authentication state.
     val authState = authViewModel.authState.collectAsState()
@@ -102,6 +111,43 @@ fun VpnScreen(
 
     // Used for UI screen adaptiveness.
     val sizing = rememberSizingVpn(windowSizeClass)
+
+    // Used to access app resources and information. Tied
+    // to the activity (MainActivity).
+    val activityContext = LocalContext.current
+
+    // Vpn ViewModel variables for UI.
+    val vpnState by vpnViewModel.vpnState.collectAsState()
+    val isEnabled by vpnViewModel.isEnabled.collectAsState()
+
+    // Handling VPN Permission Request
+    val vpnPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            vpnViewModel.connect()
+        }
+    }
+
+    // Check for VPN permission before attempting to connect to VPN.
+    val checkForPermission: () -> Unit = {
+        val intent = GoBackend.VpnService.prepare(activityContext)
+        if (intent != null) {
+            vpnPermissionLauncher.launch(intent)
+        } else {
+            vpnViewModel.connect()
+        }
+    }
+
+    // Function to check for VPN permission when VPN button is clicked.
+    val onClickToConnect: () -> Unit = {
+        vpnViewModel.onClickToConnect(checkForPermission)
+    }
+
+    // Function to disconnect from VPN.
+    val disconnect: () -> Unit = {
+        vpnViewModel.disconnect()
+    }
 
     // Function that handles logging out the user.
     val logout: () -> Unit = {
@@ -142,7 +188,12 @@ fun VpnScreen(
                 // Renders the list of VPN servers.
                 VpnList(sizing, authState.value)
                 // Renders the VPN button.
-                VpnButton(sizing)
+                VpnButton(sizing,
+                    vpnState,
+                    isEnabled,
+                    onClickToConnect,
+                    disconnect
+                )
             }
         }
     }
@@ -366,7 +417,8 @@ fun VpnList(
         }
         // Hardcoded default servers list.
         items(3) { result ->
-            ElevatedCard(
+            Card(
+                border = BorderStroke(0.1.dp, Color.Black),
                 elevation = CardDefaults.cardElevation(
                     defaultElevation = sizing.cardElevation
                 ),
@@ -374,9 +426,7 @@ fun VpnList(
                     .fillMaxWidth()
                     .height(sizing.cardHeight)
                     .padding(horizontal = sizing.cardPaddingWidth),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFE0E0E0)
-                )
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             )
             // Displays the placeholder text inside the card.
             {
@@ -426,7 +476,8 @@ fun VpnList(
             }
             // Hardcoded user's servers list.
             items(1) { result ->
-                ElevatedCard(
+                Card(
+                    border = BorderStroke(0.1.dp, Color.Black),
                     elevation = CardDefaults.cardElevation(
                         defaultElevation = sizing.cardElevation
                     ),
@@ -434,9 +485,7 @@ fun VpnList(
                         .fillMaxWidth()
                         .height(sizing.cardHeight)
                         .padding(horizontal = sizing.cardPaddingWidth),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFE0E0E0)
-                    )
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
                 // Displays the placeholder text inside the card.
                 {
@@ -484,7 +533,13 @@ fun VpnList(
 
 // Composable that renders the VPN toggle button.
 @Composable
-fun VpnButton(sizing: VpnSizing) {
+fun VpnButton(sizing: VpnSizing,
+              vpnState: VpnState,
+              isEnabled: Boolean,
+              onClickToConnect: () -> Unit,
+              disconnect: () -> Unit
+)
+{
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -492,26 +547,76 @@ fun VpnButton(sizing: VpnSizing) {
             .padding(sizing.vpnButtonPadding),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Button(
-            onClick = {},
-            shape = CircleShape,
-            modifier = Modifier.size(sizing.vpnButton),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF27619b),
-                contentColor = Color.White
-            ),
-        ) {
-            Icon(
-                imageVector = Icons.Filled.PowerSettingsNew,
-                contentDescription = "Power Button Icon",
-                modifier = Modifier.size(sizing.powerIcon)
-            )
+        // Shows blue connect button if not connected to VPN or
+        // in the process of connecting.
+        if (vpnState == VpnState.Disconnected || vpnState == VpnState.Connecting) {
+            Button(
+                onClick = { onClickToConnect() },
+                enabled = isEnabled,
+                shape = CircleShape,
+                modifier = Modifier.size(sizing.vpnButton),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF27619b),
+                    contentColor = Color.White
+                ),
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.PowerSettingsNew,
+                    contentDescription = "Power Button Icon",
+                    modifier = Modifier.size(sizing.powerIcon)
+                )
+            }
+            Spacer(modifier = Modifier.height(sizing.vpnSpacerHeight))
+            if (vpnState == VpnState.Disconnected) {
+                Text(
+                    text = "Connect to VPN",
+                    fontSize = sizing.vpnText,
+                    fontWeight = FontWeight.Bold
+
+                )
+            }
+            else{
+                Text(
+                    text = "Connecting to VPN...",
+                    fontSize = sizing.vpnText,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
-        Spacer(modifier = Modifier.height(sizing.vpnSpacerHeight))
-        Text(
-            text = "Connect to VPN",
-            fontSize = sizing.vpnText,
-            fontWeight = FontWeight.Bold
-        )
+        // Shows red disconnect button if connected to VPN or
+        // in the process of disconnecting.
+        else if (vpnState == VpnState.Connected || vpnState == VpnState.Disconnecting) {
+            Button(
+                onClick = { disconnect() },
+                enabled = isEnabled,
+                shape = CircleShape,
+                modifier = Modifier.size(sizing.vpnButton),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFA62700),
+                    contentColor = Color.White
+                ),
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.PowerSettingsNew,
+                    contentDescription = "Power Button Icon",
+                    modifier = Modifier.size(sizing.powerIcon)
+                )
+            }
+            Spacer(modifier = Modifier.height(sizing.vpnSpacerHeight))
+            if(vpnState == VpnState.Connected) {
+                Text(
+                    text = "Disconnect from VPN",
+                    fontSize = sizing.vpnText,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            else{
+                Text(
+                    text = "Disconnecting from VPN...",
+                    fontSize = sizing.vpnText,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
     }
 }

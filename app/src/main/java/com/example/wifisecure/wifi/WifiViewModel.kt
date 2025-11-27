@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.onEach
 
 // Wifi View Model, which takes a WifiScanner object as an argument.
 class WifiViewModel (
-    private val scanner: WifiScannerClass
+    private val scanner: WifiScanner
 ) : ViewModel() {
 
     // Stores Wi-Fi scan results. Only accessible by the ViewModel.
@@ -64,7 +64,8 @@ class WifiViewModel (
     fun onPermissionGranted() {
         _isScanning.value = true
         val started = scanner.startScan()
-        if (!started) _isScanning.value = false
+        if (!started)
+            _isScanning.value = false
     }
 
     // Updates the variables determining whether or not location

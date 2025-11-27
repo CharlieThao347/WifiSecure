@@ -25,7 +25,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -41,9 +40,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import android.Manifest
 import android.app.AlertDialog
@@ -52,11 +48,12 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.provider.Settings
-import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.material3.Card
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.HorizontalDivider
@@ -72,6 +69,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -97,7 +95,8 @@ fun WifiScreen(
     navController: NavController,
     windowSizeClass: WindowSizeClass,
     authViewModel: AuthViewModel,
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    wifiViewModel: WifiViewModel
 ) {
     // ViewModel variable for authentication state.
     val authState = authViewModel.authState.collectAsState()
@@ -129,17 +128,6 @@ fun WifiScreen(
     // Used to access app resources and information. Tied
     // to the activity (MainActivity).
     val activityContext = LocalContext.current
-
-    // Declaration of the Wifi ViewModel
-    val wifiViewModel: WifiViewModel = viewModel(
-        factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                val scanner = WifiScannerClass(appContext)
-                return WifiViewModel(scanner) as T
-            }
-        }
-    )
 
     // Wifi ViewModel variables for UI.
     val wifiList by wifiViewModel.wifiList.collectAsState()
@@ -175,7 +163,8 @@ fun WifiScreen(
     )
     // If user granted permission, proceed with the Wi-Fi scan.
     { granted ->
-        if (granted) wifiViewModel.onPermissionGranted()
+        if (granted)
+            wifiViewModel.onPermissionGranted()
     }
 
     // Checks for the required prerequisites before performing Wi-Fi scanning.
@@ -553,7 +542,8 @@ fun WifiList(
     ) {
         // Iterates through the cleaned scan results and displays a card for each result.
         items(wifiList, key = { it.ssid }) { result ->
-            ElevatedCard(
+            Card(
+                border = BorderStroke(0.1.dp, Color.Black),
                 elevation = CardDefaults.cardElevation(
                     defaultElevation = sizing.cardElevation
                 ),
@@ -561,9 +551,7 @@ fun WifiList(
                     .fillMaxWidth()
                     .height(sizing.cardHeight)
                     .padding(horizontal = sizing.cardPaddingWidth),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFE0E0E0)
-                )
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             )
             // Displays the Wi-Fi metrics (SSID, BSSID, RSSI, Encryption, and Frequency)
             // inside the card.

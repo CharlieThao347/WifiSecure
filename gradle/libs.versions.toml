@@ -40,6 +40,9 @@ androidx-compose-material3-window-size-class1 = { group = "androidx.compose.mate
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx" }
+wireguard-tunnel = { group = "com.wireguard.android", name = "tunnel", version = "1.0.20210211" }
+desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version = "2.1.5" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

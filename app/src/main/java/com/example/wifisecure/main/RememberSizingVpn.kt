@@ -95,7 +95,7 @@ fun rememberSizingVpn(window: WindowSizeClass): VpnSizing = remember(window) {
             vpnListSpacer = 10.dp,
 
             cardHeight = 100.dp,
-            cardElevation = 5.dp,
+            cardElevation = 10.dp,
             cardPaddingWidth = 20.dp,
 
             ssidText = 18.sp,
@@ -144,7 +144,7 @@ fun rememberSizingVpn(window: WindowSizeClass): VpnSizing = remember(window) {
             vpnListSpacer = 20.dp,
 
             cardHeight = 125.dp,
-            cardElevation = 5.dp,
+            cardElevation = 10.dp,
             cardPaddingWidth = 20.dp,
 
             ssidText = 25.sp,
@@ -193,7 +193,7 @@ fun rememberSizingVpn(window: WindowSizeClass): VpnSizing = remember(window) {
             vpnListSpacer = 20.dp,
 
             cardHeight = 150.dp,
-            cardElevation = 5.dp,
+            cardElevation = 10.dp,
             cardPaddingWidth = 20.dp,
 
             ssidText = 30.sp,

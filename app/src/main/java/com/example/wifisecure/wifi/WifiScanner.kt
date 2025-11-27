@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
 // Class that handles Wi-Fi scanning
-class WifiScannerClass (private val context: Context)
+class WifiScanner(private val context: Context)
 {
     // Class object for performing Wifi operations.
     private val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
