@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -117,17 +118,20 @@ fun VpnScreen(
     val activityContext = LocalContext.current
 
     // Vpn ViewModel variables for UI.
+    val servers by vpnViewModel.servers.collectAsState()
     val vpnState by vpnViewModel.vpnState.collectAsState()
     val isEnabled by vpnViewModel.isEnabled.collectAsState()
+    val selectedServer by vpnViewModel.selectedServer.collectAsState()
+    val connectedServer by vpnViewModel.connectedServer.collectAsState()
 
     // Handling VPN Permission Request
     val vpnPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            vpnViewModel.connect()
+                vpnViewModel.connect(selectedServer)
+            }
         }
-    }
 
     // Check for VPN permission before attempting to connect to VPN.
     val checkForPermission: () -> Unit = {
@@ -135,9 +139,9 @@ fun VpnScreen(
         if (intent != null) {
             vpnPermissionLauncher.launch(intent)
         } else {
-            vpnViewModel.connect()
+                vpnViewModel.connect(selectedServer)
+            }
         }
-    }
 
     // Function to check for VPN permission when VPN button is clicked.
     val onClickToConnect: () -> Unit = {
@@ -186,10 +190,12 @@ fun VpnScreen(
                 // many VPN Servers exist.
                 VpnCountText(sizing)
                 // Renders the list of VPN servers.
-                VpnList(sizing, authState.value)
+                VpnList(sizing, servers, selectItem = vpnViewModel::selectItem, updateSplitTunnel = vpnViewModel::updateSplitTunnel, updateIsChecked = vpnViewModel::updateIsChecked, authState.value)
                 // Renders the VPN button.
                 VpnButton(sizing,
                     vpnState,
+                    selectedServer,
+                    connectedServer,
                     isEnabled,
                     onClickToConnect,
                     disconnect
@@ -382,6 +388,10 @@ fun VpnCountText(
 @Composable
 fun VpnList(
     sizing: VpnSizing,
+    servers: List<VpnDetails>,
+    selectItem: (String) -> Unit,
+    updateSplitTunnel: (String, String) -> Unit,
+    updateIsChecked: (String, Boolean) -> Unit,
     authState: AuthState
 ) {
     // Structures the list in a column.
@@ -391,7 +401,7 @@ fun VpnList(
             .fillMaxHeight(sizing.vpnListHeight),
         verticalArrangement = Arrangement.spacedBy(sizing.vpnListSpacer),
     ) {
-        // "Default Servers" Divider.
+        // "Default Server" Divider.
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -404,7 +414,7 @@ fun VpnList(
                 )
                 // Text in the middle.
                 Text(
-                    text = "Default Servers",
+                    text = "Default Server",
                     style = MaterialTheme.typography.labelLarge,
                     textAlign = TextAlign.Center,
                     fontSize = sizing.countText,
@@ -415,38 +425,16 @@ fun VpnList(
                 )
             }
         }
-        // Hardcoded default servers list.
-        items(3) { result ->
-            Card(
-                border = BorderStroke(0.1.dp, Color.Black),
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = sizing.cardElevation
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(sizing.cardHeight)
-                    .padding(horizontal = sizing.cardPaddingWidth),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        // Default servers list.
+        items(servers, key = { it.name }) { detail ->
+            SelectableCard(sizing,
+                detail = detail,
+                onClick = {
+                    selectItem(detail.name)
+                },
+                updateSplitTunnel,
+                updateIsChecked
             )
-            // Displays the placeholder text inside the card.
-            {
-                Text(
-                    buildAnnotatedString {
-                        withStyle(
-                            style = SpanStyle(
-                                color = Color(0xFF0000FF),
-                                textDecoration = TextDecoration.Underline
-                            )
-                        ) {
-                            append("VPN Server")
-                        }
-                    },
-                    modifier = Modifier
-                        .padding(sizing.ssidPaddingHorizontal, sizing.ssidPaddingVertical),
-                    fontSize = sizing.ssidText,
-                    fontWeight = FontWeight.Bold
-                )
-            }
         }
         // Show user's VPN servers etc. if they are logged in.
         if(authState != AuthState.Guest) {
@@ -501,8 +489,8 @@ fun VpnList(
                             }
                         },
                         modifier = Modifier
-                            .padding(sizing.ssidPaddingHorizontal, sizing.ssidPaddingVertical),
-                        fontSize = sizing.ssidText,
+                            .padding(sizing.namePaddingHorizontal, sizing.namePaddingVertical),
+                        fontSize = sizing.nameText,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -535,9 +523,11 @@ fun VpnList(
 @Composable
 fun VpnButton(sizing: VpnSizing,
               vpnState: VpnState,
+              selectedServer: String,
+              connectedServer: String,
               isEnabled: Boolean,
               onClickToConnect: () -> Unit,
-              disconnect: () -> Unit
+              disconnect: () -> Unit,
 )
 {
     Column(
@@ -569,7 +559,7 @@ fun VpnButton(sizing: VpnSizing,
             Spacer(modifier = Modifier.height(sizing.vpnSpacerHeight))
             if (vpnState == VpnState.Disconnected) {
                 Text(
-                    text = "Connect to VPN",
+                    text = "Connect to $selectedServer",
                     fontSize = sizing.vpnText,
                     fontWeight = FontWeight.Bold
 
@@ -577,7 +567,7 @@ fun VpnButton(sizing: VpnSizing,
             }
             else{
                 Text(
-                    text = "Connecting to VPN...",
+                    text = "Connecting to $selectedServer...",
                     fontSize = sizing.vpnText,
                     fontWeight = FontWeight.Bold
                 )
@@ -605,14 +595,14 @@ fun VpnButton(sizing: VpnSizing,
             Spacer(modifier = Modifier.height(sizing.vpnSpacerHeight))
             if(vpnState == VpnState.Connected) {
                 Text(
-                    text = "Disconnect from VPN",
+                    text = "Disconnect from $connectedServer",
                     fontSize = sizing.vpnText,
                     fontWeight = FontWeight.Bold
                 )
             }
             else{
                 Text(
-                    text = "Disconnecting from VPN...",
+                    text = "Disconnecting from $connectedServer...",
                     fontSize = sizing.vpnText,
                     fontWeight = FontWeight.Bold
                 )

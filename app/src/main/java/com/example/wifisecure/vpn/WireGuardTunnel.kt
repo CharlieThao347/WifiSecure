@@ -9,7 +9,7 @@ import com.wireguard.android.backend.Tunnel
 // WireGuard Tunnel.
 class WireGuardTunnel : Tunnel {
     override fun getName(): String {
-        return "HardCodedTunnel"
+        return "Tunnel"
     }
     override fun onStateChange(newState: Tunnel.State) {
     }
