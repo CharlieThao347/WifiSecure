@@ -8,24 +8,45 @@ package com.example.wifisecure.vpn
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 // Vpn View Model, which takes a WireGuardManager object as an argument.
 class VpnViewModel(
     private val wireGuardManager: WireGuardManager
 ) : ViewModel() {
 
-    // List containing information about the default servers.
+    // List containing information about the servers.
     private val _servers = MutableStateFlow(listOf(
+        // Default server
         VpnDetails(
-            "Default", "157.230.133.120", false, "0.0.0.0/0, ::/0", "Santa Clara", "United States", isSelected = false, isChecked = false)
+            "Default",
+            "157.230.133.120",
+            false,
+            "0.0.0.0/0, ::/0",
+            "Santa Clara",
+            "United States",
+            isSelected = false,
+            isChecked = false,
+            isDefault = true
+        )
 
     ))
     // Read-only version of _servers that is used by the UI layer.
     val servers: StateFlow<List<VpnDetails>> = _servers
+
+    // Number of default servers.
+    private val _defaultServerCount = MutableStateFlow(1)
+    // Read-only version of _defaultServerCount that is used by the UI layer.
+    val defaultServerCount: StateFlow<Int> = _defaultServerCount
 
     // Read-only version of _vpnState that is used by the UI layer.
     val vpnState: StateFlow<VpnState> = wireGuardManager.vpnState
@@ -44,6 +65,42 @@ class VpnViewModel(
     private val _isEnabled = MutableStateFlow(false)
     // Read-only version of _isEnabled that is used by the UI layer.
     val isEnabled: StateFlow<Boolean> = _isEnabled
+
+    // Initialization function that fetches user's server info from Firebase.
+    init {
+        viewModelScope.launch {
+            val user = FirebaseAuth.getInstance().currentUser
+            if (user != null) {
+                val doc = Firebase.firestore
+                    .collection("users")
+                    .document(FirebaseAuth.getInstance().currentUser?.uid!!)
+                    .get()
+                    .await()
+                if (doc.exists()) {
+                    val servers = doc.get("servers") as? Map<String, List<String>> ?: emptyMap()
+                    for ((serverName, details) in servers) {
+                        val readList = mutableListOf<String>()
+                        for (value in details) {
+                            readList.add(value)
+                        }
+                        _servers.update { list ->
+                            list + VpnDetails(
+                                readList[0],
+                                readList[3],
+                                false,
+                                readList[9],
+                                readList[2],
+                                readList[2],
+                                isSelected = false,
+                                isChecked = false,
+                                isDefault = false
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     // Keeps track and updates which VPN server is selected.
     fun selectItem(selectedItemId: String) {
@@ -93,12 +150,45 @@ class VpnViewModel(
         }
     }
 
+    // Add user's server to Firebase.
+    fun addServerToFirebase(serverName:String, city:String, country:String, ip:String, result: MutableMap<String, String>) {
+        val privateKey = result["PrivateKey"]!!
+        val address = result["Address"]!!
+        val dns = result["DNS"]!!
+        val publicKey = result["PublicKey"]!!
+        val endpoint = result["Endpoint"]!!
+        val allowedIPs = result["AllowedIPs"]!!
+        val persistentKeepAlive = result["PersistentKeepalive"]!!
+        val serverDetails = listOf(serverName, city, country, ip, privateKey, address, dns, publicKey, endpoint, allowedIPs, persistentKeepAlive)
+        val servers = mapOf(
+            serverName to serverDetails,
+        )
+        val data = mapOf(
+            "servers" to servers
+        )
+        viewModelScope.launch {
+            FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(FirebaseAuth.getInstance().currentUser?.uid!!)
+                .set(data, SetOptions.merge())
+                .await()
+        }
+    }
+
+    // Add user's server to server list.
+    fun addToServers(name:String, city:String, country:String, ip:String, allowedIPs:String) {
+        _servers.update { list ->
+            list + VpnDetails(
+                name, ip, false, allowedIPs, city, country, isSelected = false, isChecked = false, isDefault = false)
+        }
+    }
+
     // Connect to VPN function.
     fun connect(selectedServer: String) {
         val selected = _servers.value.find { it.name == selectedServer }
         if(selected != null) {
             viewModelScope.launch {
-                wireGuardManager.connect(selectedServer, selected.allowedIPs)
+                wireGuardManager.connect(selectedServer, selected.allowedIPs, selected.isDefault)
             }
         }
         _connectedServer.value = selectedServer

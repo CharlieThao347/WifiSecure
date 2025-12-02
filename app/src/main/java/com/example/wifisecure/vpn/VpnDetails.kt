@@ -1,9 +1,10 @@
 /*
-This file contains code for the VpnDetails data class, which is for the default server.
+This file contains code for the VpnDetails data class.
  */
 
 package com.example.wifisecure.vpn
 
+// Stores info about the VPN.
 data class VpnDetails(
                       val name: String,
                       val ip: String,
@@ -11,6 +12,7 @@ data class VpnDetails(
                       val allowedIPs: String,
                       val city: String,
                       val country: String,
-                      val isSelected: Boolean = false,
-                      val isChecked: Boolean = false
+                      val isSelected: Boolean,
+                      val isChecked: Boolean,
+                      val isDefault: Boolean,
 )

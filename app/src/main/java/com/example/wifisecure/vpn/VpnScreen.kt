@@ -6,9 +6,9 @@ UI layer for the vpn screen.
 package com.example.wifisecure.vpn
 
 import android.app.Activity
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import com.example.wifisecure.main.VpnSizing
 import com.example.wifisecure.main.rememberSizingVpn
@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.PowerSettingsNew
@@ -50,8 +51,6 @@ import androidx.navigation.NavController
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material.icons.filled.Wifi
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
@@ -61,15 +60,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.wifisecure.main.AuthState
 import com.example.wifisecure.main.AuthViewModel
 import com.example.wifisecure.main.Routes
@@ -119,6 +122,7 @@ fun VpnScreen(
 
     // Vpn ViewModel variables for UI.
     val servers by vpnViewModel.servers.collectAsState()
+    val defaultServerCount by vpnViewModel.defaultServerCount.collectAsState()
     val vpnState by vpnViewModel.vpnState.collectAsState()
     val isEnabled by vpnViewModel.isEnabled.collectAsState()
     val selectedServer by vpnViewModel.selectedServer.collectAsState()
@@ -188,9 +192,17 @@ fun VpnScreen(
             ) {
                 // Renders the "VPN Servers" count text, which shows how
                 // many VPN Servers exist.
-                VpnCountText(sizing)
+                VpnCountText(sizing, servers.size, defaultServerCount, authState.value)
                 // Renders the list of VPN servers.
-                VpnList(sizing, servers, selectItem = vpnViewModel::selectItem, updateSplitTunnel = vpnViewModel::updateSplitTunnel, updateIsChecked = vpnViewModel::updateIsChecked, authState.value)
+                VpnList(sizing,
+                    servers,
+                    selectItem = vpnViewModel::selectItem,
+                    updateSplitTunnel = vpnViewModel::updateSplitTunnel,
+                    updateIsChecked = vpnViewModel::updateIsChecked,
+                    addToServers = vpnViewModel::addToServers,
+                    addServerToFirebase = vpnViewModel::addServerToFirebase,
+                    authState.value
+                )
                 // Renders the VPN button.
                 VpnButton(sizing,
                     vpnState,
@@ -369,18 +381,37 @@ fun TopAppBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VpnCountText(
-    sizing: VpnSizing
+    sizing: VpnSizing,
+    count: Int,
+    defaultCount: Int,
+    authState: AuthState
 ) {
+
     Row(
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Text(
-            text = "VPN Servers(0)",
-            modifier = Modifier.padding(sizing.countPaddingWidth,
-                sizing.countPaddingHeight),
-            fontSize = sizing.countText,
-            fontWeight = FontWeight.Bold
-        )
+        if (authState == AuthState.Guest) {
+            Text(
+                text = "VPN Servers($defaultCount)",
+                modifier = Modifier.padding(
+                    sizing.countPaddingWidth,
+                    sizing.countPaddingHeight
+                ),
+                fontSize = sizing.countText,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        else{
+            Text(
+                text = "VPN Servers($count)",
+                modifier = Modifier.padding(
+                    sizing.countPaddingWidth,
+                    sizing.countPaddingHeight
+                ),
+                fontSize = sizing.countText,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }
 
@@ -392,6 +423,8 @@ fun VpnList(
     selectItem: (String) -> Unit,
     updateSplitTunnel: (String, String) -> Unit,
     updateIsChecked: (String, Boolean) -> Unit,
+    addToServers: (String, String, String, String, String) -> Unit,
+    addServerToFirebase: (String, String, String, String, MutableMap<String, String>) -> Unit,
     authState: AuthState
 ) {
     // Structures the list in a column.
@@ -426,7 +459,7 @@ fun VpnList(
             }
         }
         // Default servers list.
-        items(servers, key = { it.name }) { detail ->
+        items(servers.take(1), key = { it.name }) { detail ->
             SelectableCard(sizing,
                 detail = detail,
                 onClick = {
@@ -462,49 +495,78 @@ fun VpnList(
                     )
                 }
             }
-            // Hardcoded user's servers list.
-            items(1) { result ->
-                Card(
-                    border = BorderStroke(0.1.dp, Color.Black),
-                    elevation = CardDefaults.cardElevation(
-                        defaultElevation = sizing.cardElevation
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(sizing.cardHeight)
-                        .padding(horizontal = sizing.cardPaddingWidth),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            // User's servers list.
+            items(servers.drop(1), key = { it.name }) { detail ->
+                SelectableCard(sizing,
+                    detail = detail,
+                    onClick = {
+                        selectItem(detail.name)
+                    },
+                    updateSplitTunnel,
+                    updateIsChecked
                 )
-                // Displays the placeholder text inside the card.
-                {
-                    Text(
-                        buildAnnotatedString {
-                            withStyle(
-                                style = SpanStyle(
-                                    color = Color(0xFF0000FF),
-                                    textDecoration = TextDecoration.Underline
-                                )
-                            ) {
-                                append("VPN Server")
-                            }
-                        },
-                        modifier = Modifier
-                            .padding(sizing.namePaddingHorizontal, sizing.namePaddingVertical),
-                        fontSize = sizing.nameText,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
             }
             // Button to add your VPN Server.
             item {
+                // Variables to keep track of state.
+                val context = LocalContext.current
+                var showDialog by remember { mutableStateOf(false) }
+                var showFileSelector by remember { mutableStateOf(false) }
+                var name by remember { mutableStateOf("No text submitted yet.") }
+                var city by remember { mutableStateOf("No text submitted yet.") }
+                var country by remember { mutableStateOf("No text submitted yet.") }
+
+                // Launches activity for selecting the file.
+                val fileSelector = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.OpenDocument(),
+                    onResult = { uri: Uri? ->
+                        if (uri != null) {
+                            /*
+                            The following code was generated using ChatGPT5. I commented the code.
+                            This code reads in the file that was selected, parses it, and
+                            store it in a map.
+                            */
+                            val inputStream = context.contentResolver.openInputStream(uri)
+                            inputStream?.use { stream ->
+                                // Read the data from the stream.
+                                val content = stream.bufferedReader().use { it.readText() }
+                                val result = mutableMapOf<String, String>()
+                                // Parses each line.
+                                content.lines().forEach { line ->
+                                    val trimmed = line.trim()
+                                    // Ignores the section headers and blank lines
+                                    if (trimmed.startsWith("[") || trimmed.isBlank()) return@forEach
+                                    // Split the line into two parts, delimited by "=".
+                                    val parts = trimmed.split("=", limit = 2)
+                                    // Check if actually got two parts.
+                                    if (parts.size == 2) {
+                                        // The first part becomes the key.
+                                        val key = parts[0].trim()
+                                        // The second part becomes the value.
+                                        val value = parts[1].trim()
+                                        // Stores the result in a map.
+                                        result[key] = value
+                                    }
+                                }
+                                // Code generated using ChatGPT5 ends here.
+                                showFileSelector = false
+                                addServerToFirebase(name, city, country, result["Endpoint"]!!.substringBefore(":"), result)
+                                addToServers(name, city, country, result["Endpoint"]!!.substringBefore(":"), result["AllowedIPs"]!!)
+                            }
+                        }
+                    }
+                )
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(15.dp),
                     horizontalArrangement = Arrangement.End
                 ) {
+                    // Button
                     FloatingActionButton(
-                        onClick = {},
+                        onClick = {
+                            showDialog = true
+                        },
                         containerColor = Color(0xFF27619b),
                         contentColor = Color.White
                     ) {
@@ -512,6 +574,96 @@ fun VpnList(
                             Icons.Default.Add,
                             contentDescription = "Add Your VPN Server"
                         )
+                    }
+                }
+                // Add VPN Server dialog pop up.
+                if (showDialog) {
+                    AddServerDialog(
+                        onDismiss = {
+                            showDialog = false
+                        },
+                        onConfirm = { nameInput, cityInput, countryInput ->
+                            name = nameInput
+                            city = cityInput
+                            country = countryInput
+                            showDialog = false
+                            showFileSelector = true
+                        }
+                    )
+                }
+                if (showFileSelector) {
+                    fileSelector.launch(arrayOf("*/*"))
+                }
+            }
+        }
+    }
+}
+
+// Composable that displays the dialog to add a server.
+@Composable
+fun AddServerDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (String, String, String) -> Unit
+) {
+    var nameInput by remember { mutableStateOf("") }
+    var cityInput by remember { mutableStateOf("") }
+    var countryInput by remember { mutableStateOf("") }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            dismissOnClickOutside = true,
+            dismissOnBackPress = true
+        )
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            color = MaterialTheme.colorScheme.surface
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Text(
+                    text = "Add Your VPN Server",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(bottom = 20.dp)
+                )
+
+                OutlinedTextField(
+                    value = nameInput,
+                    onValueChange = { nameInput = it },
+                    label = { Text("Enter a name.") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = cityInput,
+                    onValueChange = { cityInput = it },
+                    label = { Text("Enter the city.") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = countryInput,
+                    onValueChange = { countryInput = it },
+                    label = { Text("Enter the country.") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 20.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text("Cancel")
+                    }
+                    Spacer(modifier = Modifier.width(15.dp))
+                    Button(
+                        onClick = {
+                            onConfirm(nameInput, cityInput, countryInput)
+                        },
+                        enabled = nameInput.isNotBlank() && cityInput.isNotBlank() && countryInput.isNotBlank()
+                    ) {
+                        Text("Confirm")
                     }
                 }
             }

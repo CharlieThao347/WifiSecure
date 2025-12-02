@@ -7,6 +7,7 @@ package com.example.wifisecure.vpn
 
 import android.content.Context
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -46,32 +47,44 @@ class WireGuardManager(private val context: Context) {
     val vpnState: StateFlow<VpnState> = _vpnState
 
     // Connect function.
-     fun connect(selectedServer: String, allowedIPs: String) {
+     fun connect(selectedServer: String, allowedIPs: String, isDefault: Boolean) {
          // Performs network I/O outside of the main thread.
          scope.launch(Dispatchers.IO) {
          try {
              _vpnState.value = VpnState.Connecting
-
+             var collection: String?
+             var document: String?
+             // If connecting to a default server, this is the path to read from on Firebase.
+             if (isDefault){
+                 collection = "defaultServers"
+                 document = "cWaKfjM4QSiSogZAASAd"
+             }
+             // If connecting to own server, this is the path to read from on Firebase.
+             else{
+                 collection = "users"
+                 document = FirebaseAuth.getInstance().currentUser?.uid!!
+             }
              val readList = mutableListOf<String>()
              // Read server info from Firebase.
-             Firebase.firestore
-                 .collection("defaultServers")
-                 .document("cWaKfjM4QSiSogZAASAd")
-                 .get()
-                 .addOnSuccessListener { doc ->
-                     if (doc.exists()) {
-                         readFromFirebase(doc, selectedServer, readList)
-                     }
+             val doc = Firebase.firestore
+                     .collection(collection)
+                     .document(document)
+                     .get()
+                     .await()
+             if (doc.exists()) {
+                 if(isDefault) {
+                     readDefaultFromFirebase(doc, selectedServer, readList)
                  }
-                 .addOnFailureListener { e ->
-                     println("Error: ${e.message}")
-                 }
-                 .await()
-             // Sends the public key to the server and receives the internal IP
-             // that is assigned to the client.
-             val ip = HttpApi.registerPeer(peerPublicKey)
-             // Configuration data required to connect to VPN.
-             val config = """
+                 else
+                     readOwnFromFirebase(doc, selectedServer, readList)
+             }
+             var config: String?
+             if (isDefault) {
+                 // Sends the public key to the server and receives the internal IP
+                 // that is assigned to the client.
+                 val ip = HttpApi.registerPeer(peerPublicKey)
+                 // Configuration data required to connect to VPN.
+                 config = """
                  [Interface]
                  PrivateKey = $peerPrivateKey
                  Address = $ip
@@ -83,6 +96,22 @@ class WireGuardManager(private val context: Context) {
                  AllowedIPs = $allowedIPs
                  PersistentKeepalive = ${readList[3]}
                  """.trimIndent()
+             }
+             else {
+                 // Configuration data required to connect to VPN.
+                 config = """
+                 [Interface]
+                 PrivateKey = ${readList[0]}
+                 Address = ${readList[1]}
+                 DNS = ${readList[2]}
+                 
+                 [Peer]
+                 PublicKey = ${readList[3]}
+                 Endpoint = ${readList[4]}
+                 AllowedIPs = $allowedIPs
+                 PersistentKeepalive = ${readList[5]}
+                 """.trimIndent()
+             }
 
              // Parsing the data.
              val inputStream = ByteArrayInputStream(config.toByteArray())
@@ -102,8 +131,8 @@ class WireGuardManager(private val context: Context) {
      }
      }
 
-    // Reads server info from Firebase and saves the data in a list.
-    fun readFromFirebase(doc: DocumentSnapshot, selectedServer: String, readList: MutableList<String>) {
+    // Reads default server info from Firebase and saves the data in a list.
+    fun readDefaultFromFirebase(doc: DocumentSnapshot, selectedServer: String, readList: MutableList<String>) {
         val interFace = doc.get("interface") as Map<String, Map<String, String>>
         val serverInterface = interFace[selectedServer]!!
         val dns = serverInterface["dns"]
@@ -122,6 +151,24 @@ class WireGuardManager(private val context: Context) {
             readList.add(endpoint)
         if (persistentKeepAlive != null)
             readList.add(persistentKeepAlive)
+    }
+
+    // Reads own server's info from Firebase and saves the data in a list.
+    fun readOwnFromFirebase(doc: DocumentSnapshot, selectedServer: String, readList: MutableList<String>) {
+        val servers = doc.get("servers") as? Map<String, List<String>> ?: emptyMap()
+        val serverDetailsList = servers[selectedServer] ?: emptyList()
+        val privateKey = serverDetailsList[4]
+        val address = serverDetailsList[5]
+        val dns = serverDetailsList[6]
+        val publicKey = serverDetailsList[7]
+        val endpoint = serverDetailsList[8]
+        val persistentKeepAlive = serverDetailsList[10]
+        readList.add(privateKey)
+        readList.add(address)
+        readList.add(dns)
+        readList.add(publicKey)
+        readList.add(endpoint)
+        readList.add(persistentKeepAlive)
     }
 
     // Disconnect function.
