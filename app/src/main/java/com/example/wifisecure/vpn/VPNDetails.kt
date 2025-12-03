@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -77,10 +78,18 @@ fun SelectableCard(sizing: VpnSizing,
         DisplayName(sizing, detail)
         Row {
             DisplayIP(sizing, detail)
+            Spacer(
+                modifier = Modifier
+                    .width(sizing.subfieldSpacer)
+            )
             DisplaySplitTunneling(sizing, detail, updateSplitTunnel, updateIsChecked)
         }
         Row {
             DisplayCity(sizing, detail)
+            Spacer(
+                modifier = Modifier
+                    .width(sizing.subfieldSpacer)
+            )
             DisplayCountry(sizing, detail)
         }
     }
@@ -111,7 +120,9 @@ fun DisplayIP(sizing: VpnSizing, detail: VpnDetails) {
         append(": ${detail.ip}")
     },
         modifier = Modifier
-            .padding(sizing.ipPaddingHorizontal, sizing.ipPaddingVertical),
+            .padding(start = sizing.ipPaddingHorizontal, sizing.ipPaddingVertical)
+            .widthIn(max = sizing.subfieldWidth)
+            .fillMaxWidth(),
         fontSize = sizing.subfieldText,
     )
 }
@@ -141,8 +152,7 @@ fun DisplaySplitTunneling(sizing: VpnSizing,
             },
             modifier = Modifier
                 .padding(
-                    sizing.splitTunnelTextPaddingHorizontal,
-                    sizing.splitTunnelTextPaddingVertical
+                    top = sizing.splitTunnelTextPaddingVertical
                 ),
             fontSize = sizing.subfieldText,
         )
@@ -162,8 +172,7 @@ fun DisplaySplitTunneling(sizing: VpnSizing,
             },
             modifier = Modifier
                 .padding(
-                    start = sizing.splitTunnelTextPaddingHorizontal,
-                    sizing.splitTunnelTextPaddingVertical
+                    top = sizing.splitTunnelTextPaddingVertical
                 ),
             fontSize = sizing.subfieldText,
         )
@@ -229,7 +238,7 @@ fun SplitTunnelDialog(
                 OutlinedTextField(
                     value = textInput,
                     onValueChange = { textInput = it },
-                    label = { Text("Enter an IP address or range: 104.19.223.79/32, 10.0.0.0/24, etc.") },
+                    label = { Text("Enter an IP address or range: 140.82.114.3/32, 10.0.0.0/24, etc.") },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -271,7 +280,7 @@ fun DisplayCountry(sizing: VpnSizing, detail: VpnDetails) {
         append(": ${detail.country}")
     },
         modifier = Modifier
-            .padding(sizing.countryPaddingHorizontal, sizing.countryPaddingVertical),
+            .padding(top = sizing.countryPaddingVertical),
         fontSize = sizing.subfieldText,
     )
 }
@@ -290,7 +299,10 @@ fun DisplayCity(sizing: VpnSizing, detail: VpnDetails) {
         append(": ${detail.city}")
     },
         modifier = Modifier
-            .padding(sizing.cityPaddingHorizontal, sizing.cityPaddingVertical),
+            .padding(start = sizing.cityPaddingHorizontal, sizing.cityPaddingVertical)
+            .widthIn(max = sizing.subfieldWidth)
+            .fillMaxWidth(),
         fontSize = sizing.subfieldText,
+
     )
 }

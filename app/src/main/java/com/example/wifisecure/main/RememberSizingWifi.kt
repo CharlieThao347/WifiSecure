@@ -53,6 +53,7 @@ data class WifiSizing(
 
     val ssidText: TextUnit,
     val subfieldText: TextUnit,
+    val subfieldWidth: Dp,
     val dialogText: TextUnit,
 
     val ssidPaddingHorizontal: Dp,
@@ -114,6 +115,7 @@ fun rememberSizingWifi(window: WindowSizeClass): WifiSizing = remember(window) {
 
             ssidText = 18.sp,
             subfieldText = 15.sp,
+            subfieldWidth = 250.dp,
             dialogText = 13.sp,
 
             ssidPaddingHorizontal = 8.dp,
@@ -170,6 +172,7 @@ fun rememberSizingWifi(window: WindowSizeClass): WifiSizing = remember(window) {
 
             ssidText = 25.sp,
             subfieldText = 20.sp,
+            subfieldWidth = 250.dp,
             dialogText = 18.sp,
 
             ssidPaddingHorizontal = 8.dp,
@@ -180,7 +183,7 @@ fun rememberSizingWifi(window: WindowSizeClass): WifiSizing = remember(window) {
             rssiPaddingVertical = 8.dp,
             encryptionPaddingHorizontal = 20.dp,
             encryptionPaddingVertical = 8.dp,
-            frequencyPaddingHorizontal = 108.dp,
+            frequencyPaddingHorizontal = 40.dp,
             frequencyPaddingVertical = 8.dp,
 
             vpnButtonPadding = 40.dp,
@@ -226,6 +229,7 @@ fun rememberSizingWifi(window: WindowSizeClass): WifiSizing = remember(window) {
 
             ssidText = 30.sp,
             subfieldText = 25.sp,
+            subfieldWidth = 300.dp,
             dialogText = 18.sp,
 
             ssidPaddingHorizontal = 8.dp,
@@ -236,7 +240,7 @@ fun rememberSizingWifi(window: WindowSizeClass): WifiSizing = remember(window) {
             rssiPaddingVertical = 8.dp,
             encryptionPaddingHorizontal = 20.dp,
             encryptionPaddingVertical = 8.dp,
-            frequencyPaddingHorizontal = 108.dp,
+            frequencyPaddingHorizontal = 40.dp,
             frequencyPaddingVertical = 8.dp,
 
             vpnButtonPadding = 10.dp,
@@ -283,6 +287,7 @@ fun rememberSizingWifi(window: WindowSizeClass): WifiSizing = remember(window) {
 
             30.sp,
             subfieldText = 25.sp,
+            subfieldWidth = 300.dp,
             dialogText = 18.sp,
 
             ssidPaddingHorizontal = 8.dp,
@@ -293,7 +298,7 @@ fun rememberSizingWifi(window: WindowSizeClass): WifiSizing = remember(window) {
             rssiPaddingVertical = 8.dp,
             encryptionPaddingHorizontal = 20.dp,
             encryptionPaddingVertical = 8.dp,
-            frequencyPaddingHorizontal = 108.dp,
+            frequencyPaddingHorizontal = 40.dp,
             frequencyPaddingVertical = 8.dp,
 
             vpnButtonPadding = 10.dp,

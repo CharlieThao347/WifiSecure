@@ -46,17 +46,17 @@ data class VpnSizing(
 
     val nameText: TextUnit,
     val subfieldText: TextUnit,
+    val subfieldWidth: Dp,
+    val subfieldSpacer: Dp,
 
     val namePaddingHorizontal: Dp,
     val namePaddingVertical: Dp,
     val ipPaddingHorizontal: Dp,
     val ipPaddingVertical: Dp,
-    val splitTunnelTextPaddingHorizontal: Dp,
     val splitTunnelTextPaddingVertical: Dp,
     val splitTunnelIcon: Dp,
     val cityPaddingHorizontal: Dp,
     val cityPaddingVertical: Dp,
-    val countryPaddingHorizontal: Dp,
     val countryPaddingVertical: Dp,
 
     val vpnButtonPadding: Dp,
@@ -101,17 +101,17 @@ fun rememberSizingVpn(window: WindowSizeClass): VpnSizing = remember(window) {
 
             nameText = 18.sp,
             subfieldText = 15.sp,
+            subfieldWidth = 200.dp,
+            subfieldSpacer = 85.dp,
 
             namePaddingHorizontal = 8.dp,
             namePaddingVertical = 6.dp,
             ipPaddingHorizontal = 20.dp,
             ipPaddingVertical = 6.dp,
-            splitTunnelTextPaddingHorizontal = 15.dp,
             splitTunnelTextPaddingVertical = 8.dp,
             splitTunnelIcon = 20.dp,
             cityPaddingHorizontal = 20.dp,
             cityPaddingVertical = 9.dp,
-            countryPaddingHorizontal = 20.dp,
             countryPaddingVertical = 9.dp,
 
             vpnButtonPadding = 10.dp,
@@ -151,17 +151,17 @@ fun rememberSizingVpn(window: WindowSizeClass): VpnSizing = remember(window) {
 
             nameText = 25.sp,
             subfieldText = 20.sp,
+            subfieldWidth = 200.dp,
+            subfieldSpacer = 85.dp,
 
             namePaddingHorizontal = 8.dp,
             namePaddingVertical = 8.dp,
             ipPaddingHorizontal = 20.dp,
             ipPaddingVertical = 8.dp,
-            splitTunnelTextPaddingHorizontal = 75.dp,
             splitTunnelTextPaddingVertical = 8.dp,
             splitTunnelIcon = 40.dp,
             cityPaddingHorizontal = 20.dp,
             cityPaddingVertical = 8.dp,
-            countryPaddingHorizontal = 108.dp,
             countryPaddingVertical = 8.dp,
 
             vpnButtonPadding = 40.dp,
@@ -201,17 +201,17 @@ fun rememberSizingVpn(window: WindowSizeClass): VpnSizing = remember(window) {
 
             nameText = 30.sp,
             subfieldText = 25.sp,
+            subfieldWidth = 250.dp,
+            subfieldSpacer = 85.dp,
 
             namePaddingHorizontal = 8.dp,
             namePaddingVertical = 8.dp,
             ipPaddingHorizontal = 20.dp,
             ipPaddingVertical = 8.dp,
-            splitTunnelTextPaddingHorizontal = 70.dp,
             splitTunnelTextPaddingVertical = 8.dp,
             splitTunnelIcon = 40.dp,
             cityPaddingHorizontal = 20.dp,
             cityPaddingVertical = 8.dp,
-            countryPaddingHorizontal = 108.dp,
             countryPaddingVertical = 8.dp,
 
             vpnButtonPadding = 10.dp,
@@ -252,17 +252,17 @@ fun rememberSizingVpn(window: WindowSizeClass): VpnSizing = remember(window) {
 
             30.sp,
             subfieldText = 25.sp,
+            subfieldWidth = 200.dp,
+            subfieldSpacer = 85.dp,
 
             namePaddingHorizontal = 8.dp,
             namePaddingVertical = 8.dp,
             ipPaddingHorizontal = 20.dp,
             ipPaddingVertical = 8.dp,
-            splitTunnelTextPaddingHorizontal = 40.dp,
             splitTunnelTextPaddingVertical = 8.dp,
             splitTunnelIcon = 40.dp,
             cityPaddingHorizontal = 20.dp,
             cityPaddingVertical = 8.dp,
-            countryPaddingHorizontal = 108.dp,
             countryPaddingVertical = 8.dp,
 
             vpnButtonPadding = 10.dp,

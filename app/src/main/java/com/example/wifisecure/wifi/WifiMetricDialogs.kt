@@ -7,7 +7,9 @@ package com.example.wifisecure.wifi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -30,6 +32,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
 import com.example.wifisecure.main.WifiSizing
 
 // Composable that renders the SSID metric.
@@ -97,7 +100,9 @@ fun DisplayBSSID(sizing: WifiSizing, result: WifiList) {
         },
         modifier = Modifier
             .padding(sizing.bssidPaddingHorizontal, sizing.bssidPaddingVertical)
-            .clickable { showBSSIDDialog = true },
+            .clickable { showBSSIDDialog = true }
+            .widthIn(max = sizing.subfieldWidth)
+            .fillMaxWidth(),
         fontSize = sizing.subfieldText,
     )
     // Shows dialog pop up.
@@ -197,7 +202,9 @@ fun DisplayEncryption(sizing: WifiSizing, result: WifiList) {
         },
         modifier = Modifier
             .padding(sizing.encryptionPaddingHorizontal, sizing.encryptionPaddingVertical)
-            .clickable { showEncryptionDialog = true },
+            .clickable { showEncryptionDialog = true }
+            .widthIn(max = sizing.subfieldWidth)
+            .fillMaxWidth(),
         fontSize = sizing.subfieldText,
     )
     // Shows dialog pop up.
