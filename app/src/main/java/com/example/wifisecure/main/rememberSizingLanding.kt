@@ -22,7 +22,7 @@ data class LandingSizing(
     val buttonHeight: Dp
     )
 
-// Composable that applies different item sizings based on the screen size
+// Composable that applies different item sizings based on the screen size.
 @Composable
 fun rememberSizingLanding(window: WindowSizeClass): LandingSizing = remember(window) {
     when (window.widthSizeClass) {

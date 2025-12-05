@@ -74,7 +74,7 @@ data class WifiSizing(
     val vpnText: TextUnit
 )
 
-// Composable that applies different item sizings based on the screen size
+// Composable that applies different item sizings based on the screen size.
 @Composable
 fun rememberSizingWifi(window: WindowSizeClass): WifiSizing = remember(window) {
     when (window.widthSizeClass) {

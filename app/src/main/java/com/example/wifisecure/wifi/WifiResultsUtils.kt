@@ -7,8 +7,9 @@ package com.example.wifisecure.wifi
 
 import android.net.wifi.ScanResult
 
-// This function was generated using ChatGPT5.
-// Converts the band number (Int) to the band type (String).
+/* This function was generated using ChatGPT5.
+   Converts the band number (Int) to the band type (String).
+*/
 fun bandConversionToString(r: Int): String = when (r) {
     in 2400..2499 -> "2.4GHz"
     in 4900..5899 -> "5GHz"
@@ -16,7 +17,7 @@ fun bandConversionToString(r: Int): String = when (r) {
     else -> "${r}MHz"
 }
 
-// Simplifies the encryption string (Ex: WPA2-PSK-CCMP -> WPA2)
+// Simplifies the encryption string (Ex: WPA2-PSK-CCMP -> WPA2).
 fun simplifyEncryptionString(encryptionString: String): String = when {
     "WPA3" in encryptionString -> "WPA3"
     "WPA2" in encryptionString -> "WPA2"
@@ -34,15 +35,16 @@ data class WifiList(
     val frequency: String
 )
 
-// This function was generated using ChatGPT5.
-// Comments were done by me.
-// Collapses the scan results by SSID and cleans up the data.
+/* This function was generated using ChatGPT5.
+   Comments were done by me.
+   Collapses the scan results by SSID and cleans up the data.
+ */
 fun collapseBySsid(wifiList: List<ScanResult>): List<WifiList> {
     return wifiList
-        // Ignores <hidden> networks
+        // Ignores <hidden> networks.
         .filter { it.SSID.isNotBlank() }
         // Groups by SSID key (groups networks with the same SSID into just 1 network via
-        // the one with the best signal)
+        // the one with the best signal).
         .groupBy { it.SSID.trim() }
         .map { (ssid, group) ->
             val best = group.maxBy { it.level }
@@ -54,6 +56,6 @@ fun collapseBySsid(wifiList: List<ScanResult>): List<WifiList> {
                 frequency = bandConversionToString(best.frequency)
             )
         }
-        // sorts by signal (SSID's with strongest signals appears first in the list)
+        // Sorts by signal (SSID's with strongest signals appears first in the list).
         .sortedByDescending { it.rssi }
 }

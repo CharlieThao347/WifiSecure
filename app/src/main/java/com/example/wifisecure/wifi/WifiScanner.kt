@@ -18,7 +18,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
-// Class that handles Wi-Fi scanning
+// Class that handles Wi-Fi scanning.
 class WifiScanner(private val context: Context)
 {
     // Class object for performing Wifi operations.

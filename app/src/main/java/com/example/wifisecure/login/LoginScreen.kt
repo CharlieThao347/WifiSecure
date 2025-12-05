@@ -36,7 +36,6 @@ import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.Unspecified
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -59,7 +58,6 @@ import com.example.wifisecure.main.AuthState
 import com.example.wifisecure.main.AuthViewModel
 import com.example.wifisecure.main.Routes
 import com.example.wifisecure.main.rememberSizingLanding
-import com.example.wifisecure.main.rememberSizingWifi
 
 // Composable that renders the login page.
 @Composable

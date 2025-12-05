@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 // Authentication View Model.
 class AuthViewModel : ViewModel() {
-    // Firebase Authentication service instance
+    // Firebase Authentication service instance.
     private val auth = Firebase.auth
     // Stores authentication states. Only accessible by the ViewModel.
     private val _authState = MutableStateFlow<AuthState>(AuthState.Unauthenticated)
@@ -39,7 +39,7 @@ class AuthViewModel : ViewModel() {
         _authState.value = AuthState.Loading
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener{ signUpTask->
-                // Retrieves the user ID
+                // Retrieves the user ID.
                 val uid = signUpTask.user!!.uid
                 // Save the user's name in Firestore in the correct place.
                 val data = mapOf("name" to name)

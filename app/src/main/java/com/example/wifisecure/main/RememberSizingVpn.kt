@@ -66,7 +66,7 @@ data class VpnSizing(
     val vpnText: TextUnit
 )
 
-// Composable that applies different item sizings based on the screen size
+// Composable that applies different item sizings based on the screen size.
 @Composable
 fun rememberSizingVpn(window: WindowSizeClass): VpnSizing = remember(window) {
     when (window.widthSizeClass) {

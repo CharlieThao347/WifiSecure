@@ -1,5 +1,5 @@
 /*
-This file contains the UI code for displaying the Wi-Fi metrics
+This file contains the UI code for displaying the Wi-Fi metrics.
  */
 
 package com.example.wifisecure.wifi
@@ -32,7 +32,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
 import com.example.wifisecure.main.WifiSizing
 
 // Composable that renders the SSID metric.

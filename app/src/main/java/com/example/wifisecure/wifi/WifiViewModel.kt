@@ -40,9 +40,10 @@ class WifiViewModel (
     // Read-only version of _isGpsEnabled that is used by the UI layer.
     val isGpsEnabled: StateFlow<Boolean> = _isGpsEnabled
 
-    // The following block of code was generated using ChatGPT5.
-    // Comments were done by me.
-    // Runs after the ViewModel is created.
+    /* This following init block of code was generated using ChatGPT5.
+       Comments were done by me.
+       Runs after the ViewModel is created.
+     */
     init {
         // Emits a new list each time new results come in.
         scanner.resultsFlow

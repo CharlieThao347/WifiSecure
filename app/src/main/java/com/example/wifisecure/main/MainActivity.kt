@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
             // Used to access app resources and information. Tied
             // to the app's entire lifecycle.
             val appContext = LocalContext.current.applicationContext
-            // Declaration of the Vpn ViewModel
+            // Declaration of the Vpn ViewModel.
             val vpnViewModel: VpnViewModel = viewModel(
                 factory = object : ViewModelProvider.Factory {
                     @Suppress("UNCHECKED_CAST")
@@ -79,7 +79,7 @@ class MainActivity : ComponentActivity() {
                     Wifi View Model will only persist when the user is on either
                     of these two screens. This ensures that the Wi-Fi scan results do
                     not persist when exiting back to the login page etc. I used ChatGPT5
-                    to generate the template of doing this and then I filled it in with the
+                    to generate the template of doing this (block of code below) and then I filled it in with the
                     appropriate data.
                     */
                     navigation(
@@ -90,7 +90,7 @@ class MainActivity : ComponentActivity() {
                             val parentEntry = remember(backStackEntry) {
                                 navController.getBackStackEntry("app_flow")
                             }
-                            // Declaration of the Wifi ViewModel
+                            // Declaration of the Wifi ViewModel.
                             val wifiViewModel: WifiViewModel = viewModel(
                                 viewModelStoreOwner = parentEntry,
                                 factory = object : ViewModelProvider.Factory {
@@ -112,7 +112,7 @@ class MainActivity : ComponentActivity() {
                             val parentEntry = remember(backStackEntry) {
                                 navController.getBackStackEntry("app_flow")
                             }
-                            // Declaration of the Wifi ViewModel
+                            // Declaration of the Wifi ViewModel.
                             val wifiViewModel: WifiViewModel = viewModel(
                                 viewModelStoreOwner = parentEntry,
                                 factory = object : ViewModelProvider.Factory {

@@ -15,7 +15,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
 object HttpApi {
-    // IP address of the default vpn server
+    // IP address of the default vpn server.
     private const val BASE_URL = "http://157.230.133.120:8000"
 
     // Used to perform HTTP requests.
@@ -36,7 +36,7 @@ object HttpApi {
         // Convert the JSON string into a Http request body.
         val body = json.toRequestBody(JSON_MEDIA_TYPE)
 
-        // Builds the HTTP POST request
+        // Builds the HTTP POST request.
         val request = Request.Builder()
             .url("$BASE_URL/register-peer")
             .post(body)

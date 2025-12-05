@@ -128,7 +128,7 @@ fun VpnScreen(
     val selectedServer by vpnViewModel.selectedServer.collectAsState()
     val connectedServer by vpnViewModel.connectedServer.collectAsState()
 
-    // Handling VPN Permission Request
+    // Handling VPN Permission Request.
     val vpnPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -478,7 +478,7 @@ fun VpnList(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    // Left Divider
+                    // Left Divider.
                     HorizontalDivider(
                         modifier = Modifier.weight(1f),
                     )
@@ -562,7 +562,7 @@ fun VpnList(
                         .padding(15.dp),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    // Button
+                    // Button.
                     FloatingActionButton(
                         onClick = {
                             showDialog = true
