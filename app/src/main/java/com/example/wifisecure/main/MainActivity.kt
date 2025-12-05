@@ -65,13 +65,13 @@ class MainActivity : ComponentActivity() {
                 startDestination = Routes.loginScreen,
                 builder = {
                     composable(Routes.loginScreen) {
-                        LoginScreen(navController, authViewModel)
+                        LoginScreen(navController, windowSizeClass, authViewModel)
                     }
                     composable(Routes.signUpScreen) {
-                        SignUpScreen(navController, authViewModel)
+                        SignUpScreen(navController, windowSizeClass, authViewModel)
                     }
                     composable(Routes.forgotPasswordScreen) {
-                        ForgotPasswordScreen()
+                        ForgotPasswordScreen(windowSizeClass)
                     }
 
                     /*

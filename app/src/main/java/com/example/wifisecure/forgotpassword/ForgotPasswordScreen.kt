@@ -36,6 +36,7 @@ import com.example.wifisecure.R
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -44,17 +45,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import com.example.wifisecure.main.rememberSizingLanding
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.auth.ktx.auth
 import kotlin.text.ifEmpty
 
 // Composable that renders the forgot password page.
 @Composable
-fun ForgotPasswordScreen()
+fun ForgotPasswordScreen(windowSizeClass: WindowSizeClass)
 {
     // Used to access app resources and information. Tied
     // to the activity (MainActivity).
     val activityContext = LocalContext.current
+
+    // Used for UI screen adaptiveness.
+    val sizing = rememberSizingLanding(windowSizeClass)
+
     // State for email.
     var email by remember { mutableStateOf("") }
     // State for email error message.
@@ -92,7 +98,7 @@ fun ForgotPasswordScreen()
                 composition,
                 progress,
                 modifier = Modifier
-                    .size(300.dp)
+                    .size(sizing.lottieSize)
                     .align(Alignment.CenterHorizontally),
             )
             /*
@@ -100,9 +106,9 @@ fun ForgotPasswordScreen()
         */
 
             // "Forgot password" text.
-            Text(text = "Forgot Password", fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Text(text = "Forgot Password", fontSize = sizing.titleSize, fontWeight = FontWeight.Bold)
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(sizing.spacerHeight))
 
             // Email text field.
             TextField(
@@ -155,7 +161,7 @@ fun ForgotPasswordScreen()
                 },
                 modifier = Modifier.fillMaxWidth()
                     .padding(horizontal = 50.dp)
-                    .height(47.dp),
+                    .height(sizing.buttonHeight),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF27619b),
                     contentColor = Color.White

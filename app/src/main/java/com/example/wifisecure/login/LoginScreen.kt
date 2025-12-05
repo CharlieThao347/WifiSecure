@@ -48,6 +48,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableFloatStateOf
@@ -57,10 +58,12 @@ import androidx.navigation.NavController
 import com.example.wifisecure.main.AuthState
 import com.example.wifisecure.main.AuthViewModel
 import com.example.wifisecure.main.Routes
+import com.example.wifisecure.main.rememberSizingLanding
+import com.example.wifisecure.main.rememberSizingWifi
 
 // Composable that renders the login page.
 @Composable
-fun LoginScreen(navController: NavController, authViewModel: AuthViewModel)
+fun LoginScreen(navController: NavController, windowSizeClass: WindowSizeClass, authViewModel: AuthViewModel)
 {
     // Used to access app resources and information. Tied
     // to the activity (MainActivity).
@@ -85,6 +88,9 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel)
             else -> Unit
         }
     }
+
+    // Used for UI screen adaptiveness.
+    val sizing = rememberSizingLanding(windowSizeClass)
 
     // State for email.
     var email by remember { mutableStateOf("") }
@@ -129,7 +135,7 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel)
                 composition,
                 progress,
                 modifier = Modifier
-                    .size(300.dp)
+                    .size(sizing.lottieSize)
                     .align(Alignment.CenterHorizontally),
             )
             /*
@@ -137,9 +143,9 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel)
         */
 
             // "Login" text.
-            Text(text = "Login", fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Text(text = "Login", fontSize = sizing.titleSize, fontWeight = FontWeight.Bold)
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(sizing.spacerHeight))
 
             // Email text field.
             TextField(
@@ -226,7 +232,7 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel)
                 enabled = authState.value != AuthState.Loading,
                 modifier = Modifier.fillMaxWidth()
                     .padding(horizontal = 50.dp)
-                    .height(47.dp),
+                    .height(sizing.buttonHeight),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF27619b),
                     contentColor = Color.White

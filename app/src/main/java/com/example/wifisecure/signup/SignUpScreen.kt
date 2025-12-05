@@ -49,6 +49,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableFloatStateOf
@@ -58,10 +59,11 @@ import androidx.navigation.NavController
 import com.example.wifisecure.main.AuthState
 import com.example.wifisecure.main.AuthViewModel
 import com.example.wifisecure.main.Routes
+import com.example.wifisecure.main.rememberSizingLanding
 
 // Composable that renders the login page.
 @Composable
-fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
+fun SignUpScreen(navController: NavController, windowSizeClass: WindowSizeClass, authViewModel: AuthViewModel) {
     // Used to access app resources and information. Tied
     // to the activity (MainActivity).
     val activityContext = LocalContext.current
@@ -94,6 +96,9 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
             else -> Unit
         }
     }
+
+    // Used for UI screen adaptiveness.
+    val sizing = rememberSizingLanding(windowSizeClass)
 
     // State for name.
     var name by remember { mutableStateOf("") }
@@ -148,7 +153,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
                 composition,
                 progress,
                 modifier = Modifier
-                    .size(300.dp)
+                    .size(sizing.lottieSize)
                     .align(Alignment.CenterHorizontally),
             )
             /*
@@ -156,9 +161,9 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
         */
 
             // "Create Account" text.
-            Text(text = "Create Account", fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Text(text = "Create Account", fontSize = sizing.titleSize, fontWeight = FontWeight.Bold)
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(sizing.spacerHeight))
 
             // Name text field.
             TextField(
@@ -328,7 +333,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
                 enabled = authState.value != AuthState.Loading,
                 modifier = Modifier.fillMaxWidth()
                     .padding(horizontal = 50.dp)
-                    .height(47.dp),
+                    .height(sizing.buttonHeight),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF27619b),
                     contentColor = Color.White
