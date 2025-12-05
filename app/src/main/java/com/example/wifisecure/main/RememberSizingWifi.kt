@@ -91,15 +91,15 @@ fun rememberSizingWifi(window: WindowSizeClass): WifiSizing = remember(window) {
             logoutButtonHeight = 40.dp,
 
             appBarWidth = .1f,
-            appBarText = 25.sp,
+            appBarText = 20.sp,
             menuIcon = 35.dp,
             menuPaddingStart = 5.dp,
             actionsBox = 150.dp,
 
-            scanButtonPaddingEnd = 10.dp,
-            scanButtonWidth = 60.dp,
+            scanButtonPaddingEnd = 5.dp,
+            scanButtonWidth = 70.dp,
             scanButtonHeight = 35.dp,
-            scanButtonText = 10.sp,
+            scanButtonText = 9.sp,
 
             countText = 17.sp,
             countPaddingWidth = 8.dp,
@@ -115,18 +115,18 @@ fun rememberSizingWifi(window: WindowSizeClass): WifiSizing = remember(window) {
 
             ssidText = 18.sp,
             subfieldText = 15.sp,
-            subfieldWidth = 250.dp,
+            subfieldWidth = 180.dp,
             dialogText = 13.sp,
 
             ssidPaddingHorizontal = 8.dp,
             ssidPaddingVertical = 8.dp,
-            bssidPaddingHorizontal = 20.dp,
+            bssidPaddingHorizontal = 10.dp,
             bssidPaddingVertical = 8.dp,
-            rssiPaddingHorizontal = 15.dp,
+            rssiPaddingHorizontal = 1.dp,
             rssiPaddingVertical = 8.dp,
-            encryptionPaddingHorizontal = 20.dp,
+            encryptionPaddingHorizontal = 10.dp,
             encryptionPaddingVertical = 9.dp,
-            frequencyPaddingHorizontal = 20.dp,
+            frequencyPaddingHorizontal = 1.dp,
             frequencyPaddingVertical = 9.dp,
 
             vpnButtonPadding = 10.dp,

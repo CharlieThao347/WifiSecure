@@ -95,30 +95,30 @@ fun rememberSizingVpn(window: WindowSizeClass): VpnSizing = remember(window) {
             vpnListHeight = .8f,
             vpnListSpacer = 10.dp,
 
-            cardHeight = 100.dp,
+            cardHeight = 120.dp,
             cardElevation = 10.dp,
             cardPaddingWidth = 20.dp,
 
             nameText = 18.sp,
             subfieldText = 15.sp,
-            subfieldWidth = 200.dp,
-            subfieldSpacer = 85.dp,
+            subfieldWidth = 150.dp,
+            subfieldSpacer = 1.dp,
 
             namePaddingHorizontal = 8.dp,
             namePaddingVertical = 6.dp,
-            ipPaddingHorizontal = 20.dp,
-            ipPaddingVertical = 6.dp,
-            splitTunnelTextPaddingVertical = 8.dp,
-            splitTunnelIcon = 20.dp,
-            cityPaddingHorizontal = 20.dp,
-            cityPaddingVertical = 9.dp,
-            countryPaddingVertical = 9.dp,
+            ipPaddingHorizontal = 10.dp,
+            ipPaddingVertical = 3.dp,
+            splitTunnelTextPaddingVertical = 3.dp,
+            splitTunnelIcon = 10.dp,
+            cityPaddingHorizontal = 10.dp,
+            cityPaddingVertical = 3.dp,
+            countryPaddingVertical = 3.dp,
 
             vpnButtonPadding = 10.dp,
-            vpnButton = 90.dp,
-            powerIcon = 90.dp,
+            vpnButton = 80.dp,
+            powerIcon = 80.dp,
             vpnSpacerHeight = 3.dp,
-            vpnText = 18.sp
+            vpnText = 15.sp
         )
         WindowWidthSizeClass.Medium -> VpnSizing(
             drawerWidth = 360.dp,
