@@ -80,6 +80,7 @@ import com.example.wifisecure.main.Routes
 import com.example.wifisecure.main.UserViewModel
 import com.example.wifisecure.main.WifiSizing
 import com.example.wifisecure.main.rememberSizingWifi
+import com.example.wifisecure.vpn.VpnViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -96,7 +97,8 @@ fun WifiScreen(
     windowSizeClass: WindowSizeClass,
     authViewModel: AuthViewModel,
     userViewModel: UserViewModel,
-    wifiViewModel: WifiViewModel
+    wifiViewModel: WifiViewModel,
+    vpnViewModel: VpnViewModel
 ) {
     // ViewModel variable for authentication state.
     val authState = authViewModel.authState.collectAsState()
@@ -106,6 +108,7 @@ fun WifiScreen(
             // Navigates to login screen when user logs out.
             is AuthState.Unauthenticated -> {
                 userViewModel.clearUser()
+                vpnViewModel.clearServers()
                 navController.navigate(Routes.loginScreen)
             }
             // Do nothing.

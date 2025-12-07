@@ -58,6 +58,8 @@ data class VpnSizing(
     val cityPaddingHorizontal: Dp,
     val cityPaddingVertical: Dp,
     val countryPaddingVertical: Dp,
+    val countryPaddingHorizontal: Dp,
+    val deleteIcon: Dp,
 
     val vpnButtonPadding: Dp,
     val vpnButton: Dp,
@@ -95,7 +97,7 @@ fun rememberSizingVpn(window: WindowSizeClass): VpnSizing = remember(window) {
             vpnListHeight = .8f,
             vpnListSpacer = 10.dp,
 
-            cardHeight = 120.dp,
+            cardHeight = 200.dp,
             cardElevation = 10.dp,
             cardPaddingWidth = 20.dp,
 
@@ -113,6 +115,8 @@ fun rememberSizingVpn(window: WindowSizeClass): VpnSizing = remember(window) {
             cityPaddingHorizontal = 10.dp,
             cityPaddingVertical = 3.dp,
             countryPaddingVertical = 3.dp,
+            countryPaddingHorizontal = 3.dp,
+            deleteIcon = 30.dp,
 
             vpnButtonPadding = 10.dp,
             vpnButton = 80.dp,
@@ -163,6 +167,8 @@ fun rememberSizingVpn(window: WindowSizeClass): VpnSizing = remember(window) {
             cityPaddingHorizontal = 20.dp,
             cityPaddingVertical = 8.dp,
             countryPaddingVertical = 8.dp,
+            countryPaddingHorizontal = 13.dp,
+            deleteIcon = 48.dp,
 
             vpnButtonPadding = 40.dp,
             vpnButton = 90.dp,
@@ -213,6 +219,8 @@ fun rememberSizingVpn(window: WindowSizeClass): VpnSizing = remember(window) {
             cityPaddingHorizontal = 20.dp,
             cityPaddingVertical = 8.dp,
             countryPaddingVertical = 8.dp,
+            countryPaddingHorizontal = 13.dp,
+            deleteIcon = 48.dp,
 
             vpnButtonPadding = 10.dp,
             vpnButton = 75.dp,
@@ -264,6 +272,8 @@ fun rememberSizingVpn(window: WindowSizeClass): VpnSizing = remember(window) {
             cityPaddingHorizontal = 20.dp,
             cityPaddingVertical = 8.dp,
             countryPaddingVertical = 8.dp,
+            countryPaddingHorizontal = 13.dp,
+            deleteIcon = 48.dp,
 
             vpnButtonPadding = 10.dp,
             75.dp,

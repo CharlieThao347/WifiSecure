@@ -103,12 +103,17 @@ fun VpnScreen(
             // Navigates to login screen when user logs out.
             is AuthState.Unauthenticated -> {
                 userViewModel.clearUser()
+                vpnViewModel.clearServers()
                 navController.navigate(Routes.loginScreen)
             }
             // Do nothing.
             else -> Unit
         }
     }
+
+    // Retrieves user's servers if authenticated.
+    if(authState.value == AuthState.Authenticated)
+        vpnViewModel.retrieveServers()
 
     // User ViewModel variables for UI.
     val userName by userViewModel.name.collectAsState()
@@ -195,12 +200,15 @@ fun VpnScreen(
                 VpnCountText(sizing, servers.size, defaultServerCount, authState.value)
                 // Renders the list of VPN servers.
                 VpnList(sizing,
+                    windowSizeClass,
                     servers,
                     selectItem = vpnViewModel::selectItem,
                     updateSplitTunnel = vpnViewModel::updateSplitTunnel,
                     updateIsChecked = vpnViewModel::updateIsChecked,
                     addToServers = vpnViewModel::addToServers,
                     addServerToFirebase = vpnViewModel::addServerToFirebase,
+                    deleteFromServers = vpnViewModel::deleteFromServers,
+                    deleteServerFromFirebase = vpnViewModel::deleteServerFromFirebase,
                     authState.value
                 )
                 // Renders the VPN button.
@@ -419,12 +427,15 @@ fun VpnCountText(
 @Composable
 fun VpnList(
     sizing: VpnSizing,
+    windowSizeClass: WindowSizeClass,
     servers: List<VpnDetails>,
     selectItem: (String) -> Unit,
     updateSplitTunnel: (String, String) -> Unit,
     updateIsChecked: (String, Boolean) -> Unit,
     addToServers: (String, String, String, String, String) -> Unit,
     addServerToFirebase: (String, String, String, String, MutableMap<String, String>) -> Unit,
+    deleteFromServers: (String) -> Unit,
+    deleteServerFromFirebase: (String) -> Unit,
     authState: AuthState
 ) {
     // Structures the list in a column.
@@ -461,17 +472,20 @@ fun VpnList(
         // Default servers list.
         items(servers.take(1), key = { it.name }) { detail ->
             SelectableCard(sizing,
+                windowSizeClass,
                 detail = detail,
                 onClick = {
                     selectItem(detail.name)
                 },
                 updateSplitTunnel,
-                updateIsChecked
+                updateIsChecked,
+                deleteFromServers,
+                deleteServerFromFirebase
             )
         }
         // Show user's VPN servers etc. if they are logged in.
         if(authState != AuthState.Guest) {
-            // "Your Servers" Divider.
+            // "My Servers" Divider.
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -484,7 +498,7 @@ fun VpnList(
                     )
                     // Text in the middle.
                     Text(
-                        text = "Your VPN Servers",
+                        text = "My VPN Servers",
                         style = MaterialTheme.typography.labelLarge,
                         textAlign = TextAlign.Center,
                         fontSize = sizing.countText,
@@ -498,12 +512,15 @@ fun VpnList(
             // User's servers list.
             items(servers.drop(1), key = { it.name }) { detail ->
                 SelectableCard(sizing,
+                    windowSizeClass,
                     detail = detail,
                     onClick = {
                         selectItem(detail.name)
                     },
                     updateSplitTunnel,
-                    updateIsChecked
+                    updateIsChecked,
+                    deleteFromServers,
+                    deleteServerFromFirebase
                 )
             }
             // Button to add your VPN Server.

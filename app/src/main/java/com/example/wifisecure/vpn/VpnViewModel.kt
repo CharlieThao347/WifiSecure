@@ -9,6 +9,7 @@ package com.example.wifisecure.vpn
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
@@ -36,7 +37,8 @@ class VpnViewModel(
             "United States",
             isSelected = false,
             isChecked = false,
-            isDefault = true
+            isDefault = true,
+            isDeleteEnabled = true
         )
 
     ))
@@ -66,8 +68,24 @@ class VpnViewModel(
     // Read-only version of _isEnabled that is used by the UI layer.
     val isEnabled: StateFlow<Boolean> = _isEnabled
 
-    // Initialization function that fetches user's server info from Firebase.
-    init {
+    /*
+    REMINDER TO SELF:
+    Everything related to fetching the user's servers and
+    clearing it after the user logs out should actually go
+    in the User View Model, not this View Model.
+    Do this if later refactoring the code.
+     */
+    // State for whether or not user's servers have been fetched.
+    private val _retrieved = MutableStateFlow(false)
+    // Read-only version of _retrieved.
+    val retrieved: StateFlow<Boolean> = _retrieved
+
+    // Function that fetches user's server info from Firebase.
+    fun retrieveServers() {
+        // If user's servers has already been retrieved, then return.
+        if(_retrieved.value) {
+            return
+        }
         viewModelScope.launch {
             val user = FirebaseAuth.getInstance().currentUser
             if (user != null) {
@@ -89,17 +107,27 @@ class VpnViewModel(
                                 readList[3],
                                 false,
                                 readList[9],
-                                readList[2],
+                                readList[1],
                                 readList[2],
                                 isSelected = false,
                                 isChecked = false,
-                                isDefault = false
+                                isDefault = false,
+                                isDeleteEnabled = true
                             )
                         }
                     }
                 }
             }
         }
+        _retrieved.value = true
+    }
+
+    // Delete user's servers from server list when logging out.
+    fun clearServers() {
+        _servers.update { list ->
+            list.take(1)
+        }
+        _retrieved.value = false
     }
 
     // Keeps track and updates which VPN server is selected.
@@ -150,6 +178,19 @@ class VpnViewModel(
         }
     }
 
+    // Updates the state of the delete button.
+    fun updateIsDeleteEnabled(selectedItemId: String, state: Boolean) {
+        _servers.update { list ->
+            list.map { item ->
+                if (item.name == selectedItemId) {
+                    item.copy(isDeleteEnabled = state)
+                } else {
+                    item
+                }
+            }
+        }
+    }
+
     // Add user's server to Firebase.
     fun addServerToFirebase(serverName:String, city:String, country:String, ip:String, result: MutableMap<String, String>) {
         val privateKey = result["PrivateKey"]!!
@@ -179,7 +220,27 @@ class VpnViewModel(
     fun addToServers(name:String, city:String, country:String, ip:String, allowedIPs:String) {
         _servers.update { list ->
             list + VpnDetails(
-                name, ip, false, allowedIPs, city, country, isSelected = false, isChecked = false, isDefault = false)
+                name, ip, false, allowedIPs, city, country, isSelected = false, isChecked = false, isDefault = false, isDeleteEnabled = true)
+        }
+    }
+
+    // Delete user's server from Firebase.
+    fun deleteServerFromFirebase(serverName:String) {
+        viewModelScope.launch {
+            FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(FirebaseAuth.getInstance().currentUser?.uid!!)
+                .update(mapOf("servers.$serverName" to FieldValue.delete()))
+                .await()
+        }
+    }
+
+    // Delete user's server from server list.
+    fun deleteFromServers(name:String) {
+        _servers.update { list ->
+            list.filter {
+                it.name != name
+            }
         }
     }
 
@@ -192,6 +253,7 @@ class VpnViewModel(
             }
         }
         _connectedServer.value = selectedServer
+        updateIsDeleteEnabled(_connectedServer.value, false)
     }
 
     // Disconnect from VPN function.
@@ -199,6 +261,8 @@ class VpnViewModel(
         viewModelScope.launch {
             wireGuardManager.disconnect()
         }
+        updateIsDeleteEnabled(_connectedServer.value, true)
+        _connectedServer.value = ""
     }
 
     // Checks for VPN permission when VPN button is clicked

@@ -105,7 +105,8 @@ class MainActivity : ComponentActivity() {
                                 windowSizeClass,
                                 authViewModel,
                                 userViewModel,
-                                wifiViewModel
+                                wifiViewModel,
+                                vpnViewModel
                             )
                         }
                         composable(Routes.vpnScreen) { backStackEntry ->

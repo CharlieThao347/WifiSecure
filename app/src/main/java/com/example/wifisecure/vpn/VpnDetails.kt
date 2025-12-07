@@ -15,4 +15,5 @@ data class VpnDetails(
                       val isSelected: Boolean,
                       val isChecked: Boolean,
                       val isDefault: Boolean,
+                      val isDeleteEnabled: Boolean,
 )
