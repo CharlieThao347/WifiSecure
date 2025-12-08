@@ -1,6 +1,6 @@
 /*
 This file contains code for the WifiScanner Class.
-This is the data layer for the wifi screen.
+This is the data layer for the scan results of the wifi screen.
  */
 
 package com.example.wifisecure.wifi

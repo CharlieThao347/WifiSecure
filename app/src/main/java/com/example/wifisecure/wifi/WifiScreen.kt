@@ -457,8 +457,9 @@ fun ScanButtons(
                     while (!showManualScanButton && !isScanning) {
                         // Invokes the Wi-Fi scanning function.
                         onScan()
-                        // 5 second delay.
-                        delay(5000L)
+                        // 7 second delay, but completing a scan takes about 5 seconds.
+                        // So about a 2 second delay between each scan.
+                        delay(7000L)
                     }
                 }
             }

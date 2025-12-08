@@ -1,7 +1,7 @@
 /*
 This file contains the code for the Wifi View Model.
 Holds and updates UI logic and state. This is the presentation
-layer for the wifi screen.
+layer for the wifi scan results of the wifi screen.
  */
 
 package com.example.wifisecure.wifi
@@ -14,6 +14,15 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+
+// Class that holds the list of cleaned up scan results.
+data class WifiList(
+    val ssid: String,
+    val bssid: String,
+    val rssi: Int,
+    val encryption: String,
+    val frequency: String
+)
 
 // Wifi View Model, which takes a WifiScanner object as an argument.
 class WifiViewModel (

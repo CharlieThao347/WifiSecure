@@ -26,15 +26,6 @@ fun simplifyEncryptionString(encryptionString: String): String = when {
     else -> "Open"
 }
 
-// Class that holds the list of cleaned up scan results.
-data class WifiList(
-    val ssid: String,
-    val bssid: String,
-    val rssi: Int,
-    val encryption: String,
-    val frequency: String
-)
-
 /* This function was generated using ChatGPT5.
    Comments were done by me.
    Collapses the scan results by SSID and cleans up the data.
