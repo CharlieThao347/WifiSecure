@@ -77,6 +77,7 @@ import com.example.wifisecure.main.AuthState
 import com.example.wifisecure.main.AuthViewModel
 import com.example.wifisecure.main.Routes
 import com.example.wifisecure.main.UserViewModel
+import com.example.wifisecure.wifi.ConnectedWifiViewModel
 import com.example.wifisecure.wifi.WifiViewModel
 import com.wireguard.android.backend.GoBackend
 import kotlinx.coroutines.CoroutineScope
@@ -93,6 +94,7 @@ fun VpnScreen(
     authViewModel: AuthViewModel,
     userViewModel: UserViewModel,
     wifiViewModel: WifiViewModel,
+    connectedWifiViewModel: ConnectedWifiViewModel,
     vpnViewModel: VpnViewModel
 ) {
     // ViewModel variable for authentication state.

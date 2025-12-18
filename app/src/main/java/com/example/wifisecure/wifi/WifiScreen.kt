@@ -98,6 +98,7 @@ fun WifiScreen(
     authViewModel: AuthViewModel,
     userViewModel: UserViewModel,
     wifiViewModel: WifiViewModel,
+    connectedWifiViewModel: ConnectedWifiViewModel,
     vpnViewModel: VpnViewModel
 ) {
     // ViewModel variable for authentication state.
@@ -138,6 +139,9 @@ fun WifiScreen(
     val isNetworkEnabled by wifiViewModel.isNetworkEnabled.collectAsState()
     val isGpsEnabled by wifiViewModel.isGpsEnabled.collectAsState()
 
+    // Connected Wifi ViewModel variables for UI.
+    val connectedWifiDetails by connectedWifiViewModel.connectedWifiDetails.collectAsState()
+
     // Updates location setting variables.
     val locationManager = appContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     wifiViewModel.updateLocationSetting(
@@ -164,10 +168,13 @@ fun WifiScreen(
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     )
-    // If user granted permission, proceed with the Wi-Fi scan.
+    // If user granted permission, proceed with
+    // the monitoring of connectivity changes and proceed with the Wi-Fi scan.
     { granted ->
-        if (granted)
+        if (granted) {
+            connectedWifiViewModel.startMonitoring(appContext)
             wifiViewModel.onPermissionGranted()
+        }
     }
 
     // Checks for the required prerequisites before performing Wi-Fi scanning.
@@ -192,6 +199,8 @@ fun WifiScreen(
             appContext, Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
         if (granted) {
+            // If granted, start monitoring for connectivity changes.
+            connectedWifiViewModel.startMonitoring(appContext)
             // If granted, proceed with the Wi-Fi scan.
             wifiViewModel.onPermissionGranted()
         } else {
@@ -248,10 +257,12 @@ fun WifiScreen(
                     sizing,
                     wifiList
                 )
-                // Renders the list of found Wi-Fi.
+                // Renders the list of Wi-Fi.
                 WifiList(
                     sizing,
-                    wifiList
+                    connectedWifiDetails,
+                    wifiList,
+                    removeConnectedWifiEntry = wifiViewModel::removeConnectedWifiEntry,
                 )
             }
         }
@@ -522,7 +533,7 @@ fun WifiCountText(
         modifier = Modifier.fillMaxWidth(),
     ) {
         Text(
-            text = "Wi-Fi(${wifiList.size})",
+            text = "Found Wi-Fi(${wifiList.size})",
             modifier = Modifier.padding(sizing.countPaddingWidth,
                 sizing.countPaddingHeight),
             fontSize = sizing.countText,
@@ -535,7 +546,9 @@ fun WifiCountText(
 @Composable
 fun WifiList(
     sizing: WifiSizing,
-    wifiList: List<WifiList>
+    connectedWifiDetails: ConnectedWifiDetails,
+    wifiList: List<WifiList>,
+    removeConnectedWifiEntry: (String?) -> Unit,
 ) {
     // Structures the list in a column.
     LazyColumn(
@@ -544,6 +557,51 @@ fun WifiList(
             .fillMaxHeight(sizing.wifiListHeight),
         verticalArrangement = Arrangement.spacedBy(sizing.wifiListSpacer),
     ) {
+        // Displays the connected Wi-Fi.
+        if (connectedWifiDetails.connected) {
+            items(1) {
+                Card(
+                    border = BorderStroke(width = 2.dp, color = Color(0xFF388E3C)),
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = sizing.cardElevation
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(sizing.cardHeight)
+                        .padding(horizontal = sizing.cardPaddingWidth),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFC8E6C9))
+                )
+                // Displays the Wi-Fi metrics (SSID, BSSID, RSSI, Encryption, and Frequency)
+                // inside the card.
+                {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        DisplaySSID(sizing, connectedWifiDetails.ssid)
+                        Text(
+                            "Connected",
+                            modifier = Modifier.padding(end = 15.dp, top = 7.dp),
+                            fontSize = sizing.connectedText,
+                            color = Color(0xFF0A7F2E)
+                        )
+                    }
+                    Row {
+                        DisplayBSSID(sizing, connectedWifiDetails.bssid)
+                        DisplayRSSI(sizing, connectedWifiDetails.rssi)
+                    }
+                    Row {
+                        DisplayEncryption(sizing, connectedWifiDetails.encryption)
+                        DisplayFrequency(sizing, connectedWifiDetails.frequency)
+                    }
+                }
+            }
+        }
+        // If connected to Wi-Fi, remove that entry from the scan results,
+        // so there isn't a duplicate showing.
+        if (connectedWifiDetails.ssid != null) {
+            removeConnectedWifiEntry(connectedWifiDetails.ssid)
+        }
         // Iterates through the cleaned scan results and displays a card for each result.
         items(wifiList, key = { it.ssid }) { result ->
             Card(
@@ -560,14 +618,14 @@ fun WifiList(
             // Displays the Wi-Fi metrics (SSID, BSSID, RSSI, Encryption, and Frequency)
             // inside the card.
             {
-                DisplaySSID(sizing, result)
+                DisplaySSID(sizing, result.ssid)
                 Row {
-                    DisplayBSSID(sizing, result)
-                    DisplayRSSI(sizing, result)
+                    DisplayBSSID(sizing, result.bssid)
+                    DisplayRSSI(sizing, result.rssi)
                 }
                 Row {
-                    DisplayEncryption(sizing, result)
-                    DisplayFrequency(sizing, result)
+                    DisplayEncryption(sizing, result.encryption)
+                    DisplayFrequency(sizing, result.frequency)
                 }
             }
         }

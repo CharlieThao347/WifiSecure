@@ -36,7 +36,7 @@ import com.example.wifisecure.main.WifiSizing
 
 // Composable that renders the SSID metric.
 @Composable
-fun DisplaySSID(sizing: WifiSizing, result: WifiList) {
+fun DisplaySSID(sizing: WifiSizing, result: String?) {
     // State for dialog pop up.
     var showSSIDDialog by remember { mutableStateOf(false) }
     // Shows "SSID" with blue text color and underlined.
@@ -50,7 +50,7 @@ fun DisplaySSID(sizing: WifiSizing, result: WifiList) {
             ) {
                 append("SSID")
             }
-            append(": ${result.ssid}")
+            append(": $result")
         },
         modifier = Modifier
             .padding(sizing.ssidPaddingHorizontal, sizing.ssidPaddingVertical)
@@ -81,7 +81,7 @@ fun DisplaySSID(sizing: WifiSizing, result: WifiList) {
 
 // Composable that renders the BSSID metric.
 @Composable
-fun DisplayBSSID(sizing: WifiSizing, result: WifiList) {
+fun DisplayBSSID(sizing: WifiSizing, result: String?) {
     // State for dialog pop up.
     var showBSSIDDialog by remember { mutableStateOf(false) }
     // Shows "BSSID" with blue text color and underlined.
@@ -95,7 +95,7 @@ fun DisplayBSSID(sizing: WifiSizing, result: WifiList) {
             ) {
                 append("BSSID")
             }
-            append(": ${result.bssid}")
+            append(": $result")
         },
         modifier = Modifier
             .padding(sizing.bssidPaddingHorizontal, sizing.bssidPaddingVertical)
@@ -127,7 +127,7 @@ fun DisplayBSSID(sizing: WifiSizing, result: WifiList) {
 
 // Composable that renders the RSSI metric.
 @Composable
-fun DisplayRSSI(sizing: WifiSizing, result: WifiList) {
+fun DisplayRSSI(sizing: WifiSizing, result: Int?) {
     // State for dialog pop up.
     var showRSSIDialog by remember { mutableStateOf(false) }
     // Shows "RSSI" with blue text color and underlined.
@@ -141,7 +141,15 @@ fun DisplayRSSI(sizing: WifiSizing, result: WifiList) {
             ) {
                 append("RSSI")
             }
-            append(": ${result.rssi} dBm")
+            append(": ")
+            withStyle(
+                style = SpanStyle(
+                    color = Color(0xFF0A7F2E)
+                )
+            ) {
+                append("$result")
+            }
+            append(" dBm")
         },
         modifier = Modifier
             .padding(sizing.rssiPaddingHorizontal, sizing.rssiPaddingVertical)
@@ -168,7 +176,7 @@ fun DisplayRSSI(sizing: WifiSizing, result: WifiList) {
         )
     }
     // Displays different number of Wi-Fi bars based on the RSSI value.
-    val icon = when (result.rssi) {
+    val icon = when (result) {
         in -999..-86 -> Icons.Filled.WifiOff
         in -85..-71 -> Icons.Filled.Wifi1Bar
         in -70..-60 -> Icons.Filled.Wifi2Bar
@@ -182,7 +190,7 @@ fun DisplayRSSI(sizing: WifiSizing, result: WifiList) {
 
 // Composable that renders the Encryption metric.
 @Composable
-fun DisplayEncryption(sizing: WifiSizing, result: WifiList) {
+fun DisplayEncryption(sizing: WifiSizing, result: String?) {
     // State for dialog pop up
     var showEncryptionDialog by remember { mutableStateOf(false) }
 
@@ -197,7 +205,7 @@ fun DisplayEncryption(sizing: WifiSizing, result: WifiList) {
             ) {
                 append("Encryption")
             }
-            append(": ${result.encryption}")
+            append(": $result")
         },
         modifier = Modifier
             .padding(sizing.encryptionPaddingHorizontal, sizing.encryptionPaddingVertical)
@@ -235,7 +243,7 @@ fun DisplayEncryption(sizing: WifiSizing, result: WifiList) {
 
 // Composable that renders the Frequency metric.
 @Composable
-fun DisplayFrequency(sizing: WifiSizing, result: WifiList) {
+fun DisplayFrequency(sizing: WifiSizing, result: String?) {
     // State for dialog pop up
     var showFrequencyBandDialog by remember { mutableStateOf(false) }
     // Shows "Frequency" with blue text color and underlined.
@@ -249,7 +257,7 @@ fun DisplayFrequency(sizing: WifiSizing, result: WifiList) {
             ) {
                 append("Frequency Band")
             }
-            append(": ${result.frequency}")
+            append(": $result")
         },
         modifier = Modifier
             .padding(sizing.frequencyPaddingHorizontal, sizing.frequencyPaddingVertical)

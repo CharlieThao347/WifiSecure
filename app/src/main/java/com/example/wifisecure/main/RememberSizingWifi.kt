@@ -52,6 +52,7 @@ data class WifiSizing(
     val cardPaddingWidth: Dp,
 
     val ssidText: TextUnit,
+    val connectedText: TextUnit,
     val subfieldText: TextUnit,
     val subfieldWidth: Dp,
     val dialogText: TextUnit,
@@ -114,6 +115,7 @@ fun rememberSizingWifi(window: WindowSizeClass): WifiSizing = remember(window) {
             cardPaddingWidth = 20.dp,
 
             ssidText = 18.sp,
+            connectedText = 12.sp,
             subfieldText = 15.sp,
             subfieldWidth = 180.dp,
             dialogText = 13.sp,
@@ -171,6 +173,7 @@ fun rememberSizingWifi(window: WindowSizeClass): WifiSizing = remember(window) {
             cardPaddingWidth = 20.dp,
 
             ssidText = 25.sp,
+            connectedText = 20.sp,
             subfieldText = 20.sp,
             subfieldWidth = 250.dp,
             dialogText = 18.sp,
@@ -228,6 +231,7 @@ fun rememberSizingWifi(window: WindowSizeClass): WifiSizing = remember(window) {
             cardPaddingWidth = 20.dp,
 
             ssidText = 30.sp,
+            connectedText = 20.sp,
             subfieldText = 25.sp,
             subfieldWidth = 300.dp,
             dialogText = 18.sp,
@@ -286,6 +290,7 @@ fun rememberSizingWifi(window: WindowSizeClass): WifiSizing = remember(window) {
             cardPaddingWidth = 20.dp,
 
             30.sp,
+            connectedText = 20.sp,
             subfieldText = 25.sp,
             subfieldWidth = 300.dp,
             dialogText = 18.sp,

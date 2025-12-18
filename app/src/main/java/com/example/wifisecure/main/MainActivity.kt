@@ -27,6 +27,8 @@ import com.example.wifisecure.signup.SignUpScreen
 import com.example.wifisecure.vpn.VpnScreen
 import com.example.wifisecure.vpn.VpnViewModel
 import com.example.wifisecure.vpn.WireGuardManager
+import com.example.wifisecure.wifi.ConnectedWifi
+import com.example.wifisecure.wifi.ConnectedWifiViewModel
 import com.example.wifisecure.wifi.WifiScanner
 import com.example.wifisecure.wifi.WifiScreen
 import com.example.wifisecure.wifi.WifiViewModel
@@ -76,8 +78,8 @@ class MainActivity : ComponentActivity() {
 
                     /*
                     Groups the wifi screen and vpn screen in such way that the
-                    Wifi View Model will only persist when the user is on either
-                    of these two screens. This ensures that the Wi-Fi scan results do
+                    Wifi View Model and Connected Wifi View Model will only persist when the user is on either
+                    of these two screens. This ensures that the Wi-Fi scan results and connected Wi-Fi details do
                     not persist when exiting back to the login page etc. I used ChatGPT5
                     to generate the template of doing this (block of code below) and then I filled it in with the
                     appropriate data.
@@ -101,11 +103,23 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             )
+                            // Declaration of the Connected Wifi ViewModel.
+                            val connectedWifiViewModel: ConnectedWifiViewModel = viewModel(
+                                viewModelStoreOwner = parentEntry,
+                                factory = object : ViewModelProvider.Factory {
+                                    @Suppress("UNCHECKED_CAST")
+                                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                                        val connectedWifi = ConnectedWifi(appContext)
+                                        return ConnectedWifiViewModel(connectedWifi) as T
+                                    }
+                                }
+                            )
                             WifiScreen(navController,
                                 windowSizeClass,
                                 authViewModel,
                                 userViewModel,
                                 wifiViewModel,
+                                connectedWifiViewModel,
                                 vpnViewModel
                             )
                         }
@@ -124,11 +138,23 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             )
+                            // Declaration of the Connected Wifi ViewModel.
+                            val connectedWifiViewModel: ConnectedWifiViewModel = viewModel(
+                                viewModelStoreOwner = parentEntry,
+                                factory = object : ViewModelProvider.Factory {
+                                    @Suppress("UNCHECKED_CAST")
+                                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                                        val connectedWifi = ConnectedWifi(appContext)
+                                        return ConnectedWifiViewModel(connectedWifi) as T
+                                    }
+                                }
+                            )
                             VpnScreen(navController,
                                 windowSizeClass,
                                 authViewModel,
                                 userViewModel,
                                 wifiViewModel,
+                                connectedWifiViewModel,
                                 vpnViewModel
                             )
                         }

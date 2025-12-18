@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 
 // Class that holds the list of cleaned up scan results.
 data class WifiList(
@@ -94,5 +95,13 @@ class WifiViewModel (
     fun onScanClicked(checkForPrerequisites: () -> Unit
     ) {
         checkForPrerequisites()
+    }
+
+    // Removes the entry of the connected Wi-Fi from the scan results,
+    // so there isn't a duplicate showing.
+    fun removeConnectedWifiEntry(connectedWifiSSID: String?) {
+        _wifiList.update { list ->
+            list.filterNot { it.ssid == connectedWifiSSID }
+        }
     }
 }

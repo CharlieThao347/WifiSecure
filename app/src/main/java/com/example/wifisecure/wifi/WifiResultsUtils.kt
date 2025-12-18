@@ -5,7 +5,12 @@ results from the Wi-Fi scan.
 
 package com.example.wifisecure.wifi
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import android.net.wifi.ScanResult
+import android.net.wifi.WifiManager
+import androidx.core.content.ContextCompat
 
 /* This function was generated using ChatGPT5.
    Converts the band number (Int) to the band type (String).
@@ -15,6 +20,30 @@ fun bandConversionToString(r: Int): String = when (r) {
     in 4900..5899 -> "5GHz"
     in 5925..7125 -> "6GHz"
     else -> "${r}MHz"
+}
+
+// Retrieves the encryption type for the currently connected Wi-Fi.
+fun getEncryptionType(context: Context): String? {
+    if (ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    ) {
+        val wifiManager =
+            context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val wifiDetails = wifiManager.connectionInfo ?: return null
+        val currentBSSID = wifiDetails.bssid ?: return null
+        val scanResults = wifiManager.scanResults
+        val matchingAP = scanResults.find { it.BSSID == currentBSSID } ?: return null
+        val encryptionString = matchingAP.capabilities
+        return when {
+            "WPA3" in encryptionString -> "WPA3"
+            "WPA2" in encryptionString -> "WPA2"
+            "WPA" in encryptionString -> "WPA"
+            "WEP" in encryptionString -> "WEP"
+            else -> "Open"
+        }
+    }
+    return null
 }
 
 // Simplifies the encryption string (Ex: WPA2-PSK-CCMP -> WPA2).
